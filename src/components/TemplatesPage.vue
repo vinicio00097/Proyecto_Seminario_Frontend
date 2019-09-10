@@ -171,10 +171,12 @@
                 <v-card :loading="loaderCard">
                     <v-card-title class="headline">Confirmación</v-card-title>
 
-                    <v-card-text>
-                    Desea crear un proceso de la plantilla "{{selectedTemplate.nombre}}"?
+                    <v-card-text v-if="actionDialog=='createProcess'">
+                        Desea crear un proceso de la plantilla "{{selectedTemplate.nombre}}"?
                     </v-card-text>
-
+                    <v-card-text v-if="actionDialog=='deleteTemplate'">
+                        Desea eliminar la plantilla "{{selectedTemplate.nombre}}"?
+                    </v-card-text>
                     <v-card-actions>
                     <div class="flex-grow-1"></div>
 
@@ -186,8 +188,16 @@
                     </v-btn>
 
                     <v-btn
+                        v-if="actionDialog=='createProcess'"
                         text
                         @click="crear_proceso(selectedTemplate)"
+                    >
+                        Si
+                    </v-btn>
+                    <v-btn
+                        v-if="actionDialog=='deleteTemplate'"
+                        text
+                        @click="deleteTemplate(selectedTemplate)"
                     >
                         Si
                     </v-btn>
@@ -210,7 +220,7 @@
                     <v-col class="pa-0">
                         <v-row class="ma-0">
                             <v-spacer/>
-                            <v-btn icon large>
+                            <v-btn icon @click="dialog=true;selectedTemplate=template;actionDialog='deleteTemplate';" large>
                                 <v-icon>
                                     clear
                                 </v-icon>
@@ -246,7 +256,7 @@
                     </v-list-item>
                     <v-card-actions>
                         <v-layout row class="ma-0">
-                        <v-btn color="deep-orange" @click="dialog=true;selectedTemplate=template;" rounded>Crear</v-btn>
+                        <v-btn color="deep-orange" @click="dialog=true;selectedTemplate=template;actionDialog='createProcess'" rounded>Crear</v-btn>
                         <v-btn icon>
                             <v-icon>edit</v-icon>
                         </v-btn>
@@ -305,6 +315,7 @@ export default {
         isLoaded:false,
         loaderCard: null,
         dialog:false,
+        actionDialog:"",
         newTemplateDialog:false,
         selectedTemplate:Object,
         newTemplate:{
@@ -361,13 +372,22 @@ export default {
             ).then(response=>{
                 if(response.status==200){
                     if(response.data.code==22){
-                        this.templatesSnackbar.text="Proceso \""+plantilla.nombre+"\" creado.";
-                        this.templatesSnackbar.style="success";
-                        this.templatesSnackbar.active=true;
+                        this.showSnackbar(plantilla.nombre,"success",1000);
                     }
                 }
-            },error=>{
-
+            }).catch(error=>{
+                if(error.status==404){
+                    if(error.data!=null){
+                        if(error.data.code==20){
+                            this.templatesData.splice(this.templatesData.indexOf(plantilla),1);    
+                        }
+                        this.showSnackbar(error.data.message,"error",1000);
+                    }else{
+                        this.showSnackbar(error,"error",1000);
+                    }
+                }else{
+                    this.showSnackbar(error,"error",1000);
+                }
             });
 
             this.loaderCard=false;
@@ -423,7 +443,7 @@ export default {
             }
         },
         async addTemplate(){
-            this.loaderCard="deep-orange"
+            this.loaderCard="deep-orange";
 
             if(this.$refs.newTemplateForm.validate()){
                 let newTemplate={
@@ -442,24 +462,83 @@ export default {
                         if(response.data.code==12){
                             this.templatesData.push(response.data.data);
 
-                            this.templatesSnackbar.text="Plantilla \""+newTemplate.nombre+"\" agregada.";
-                            this.templatesSnackbar.style="success";
-                            this.templatesSnackbar.active=true;
+                            this.showSnackbar(newTemplate.nombre,"success",1);
                         }
                     }
-                },error=>{
-
+                }).catch(error=>{
+                    if(error.status==404){
+                        if(error.data!=null){
+                            this.showSnackbar(error.data.message,"error",1000);
+                        }else{
+                            this.showSnackbar(error,"error",1000);
+                        }
+                    }else{
+                        this.showSnackbar(error,"error",1000);
+                    }
                 });
 
                 this.loaderCard=false;
                 this.newTemplateDialog=false;
             }
         },
+        async deleteTemplate(template){
+            this.loaderCard="deep-orange";
+
+            await this.$axios.delete(
+                this.$webServicesBaseURL+"Home/Plantillas/Delete/"+template.idPlantilla,
+                {withCredentials:true}
+            ).then(response=>{
+                if(response.status==200){
+                    if(response.data.code==19){
+                        this.templatesData.splice(this.templatesData.indexOf(template),1);
+
+                        this.showSnackbar(template.nombre,"success",2);
+                    }
+                }
+            }).catch(error=>{
+                if(error.status==404){
+                    if(error.data!=null){
+                        if(error.data.code==10){
+                            this.templatesData.splice(this.templatesData.indexOf(template),1);    
+                        }
+                        this.showSnackbar(error.data.message,"error",1000);
+                    }else{
+                        this.showSnackbar(error,"error",1000);
+                    }
+                }else{
+                    this.showSnackbar(error,"error",1000);
+                }
+            });
+
+            this.loaderCard=false;
+            this.dialog=false;
+        },
         onCancelDialog(){
             this.$refs.newTemplateForm.reset();
             this.$refs.newFieldForm.reset();
             this.$refs.newStepForm.reset();
             this.newTemplateDialog = false;
+        },
+        showSnackbar(text,style,indexAction){
+            this.templatesSnackbar.active=false;
+            
+            switch(indexAction){
+                case 1:{
+                    this.templatesSnackbar.text="Plantilla \""+text+"\" agregada.";
+                }break;
+                case 2:{
+                    this.templatesSnackbar.text="Plantilla \""+text+"\" eliminada.";
+                }break;
+                case 3:{
+                    this.templatesSnackbar.text="Plantilla \""+text+"\" actualizada.";
+                }break;
+                default:{
+                    this.templatesSnackbar.text=text;
+                }break;
+            }
+
+            this.templatesSnackbar.active=true;
+            this.templatesSnackbar.style=style;
         },
         async initializeAll(){
             await this.loadTemplates();

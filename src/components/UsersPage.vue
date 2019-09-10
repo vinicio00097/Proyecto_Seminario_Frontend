@@ -276,8 +276,19 @@ export default {
                         this.showSnackbar(this.selectedUser.nombres+" "+this.selectedUser.apellidos,"success",2);
                     }
                 }
-            },error=>{
-                console.log("user delete error");
+            }).catch(error=>{
+                if(error.status==404){
+                    if(error.data!=null){
+                        if(error.data.code==30){
+                            this.usersData.splice(this.usersData.indexOf(this.selectedUser),1);    
+                        }
+                        this.showSnackbar(error.data.message,"error",1000);
+                    }else{
+                        this.showSnackbar(error,"error",1000);
+                    }
+                }else{
+                    this.showSnackbar(error,"error",1000);
+                }
             });
 
             this.loaderCard=false;
@@ -309,8 +320,16 @@ export default {
                             this.showSnackbar(newUser.nombres+" "+newUser.apellidos,"success",1);
                         }
                     }
-                },error=>{
-                    console.log("user add error");
+                }).catch(error=>{
+                    if(error.status==404){
+                        if(error.data!=null){
+                            this.showSnackbar(error.data.message,"error",1000);
+                        }else{
+                            this.showSnackbar(error,"error",1000);
+                        }
+                    }else{
+                        this.showSnackbar(error,"error",1000);
+                    }
                 });
 
                 this.loaderCard=false;
@@ -331,7 +350,7 @@ export default {
                 this.loaderCard="deep-orange";
 
                 await this.$axios.put(
-                    this.$webServicesBaseURL+"Home/Usuarios/Edit",
+                    this.$webServicesBaseURL+"Home/Usuarios/Edit/"+updatedUser.idUsuario,
                     updatedUser,
                     {withCredentials:true}
                 ).then(response=>{
@@ -348,8 +367,19 @@ export default {
                             this.showSnackbar(this.selectedUser.nombres+" "+this.selectedUser.apellidos,"success",3);
                         }
                     }
-                },error=>{
-                    console.log("user add error");
+                }).catch(error=>{
+                    if(error.status==404){
+                        if(error.data!=null){
+                            if(error.data.code==30){
+                                this.usersData.splice(this.usersData.indexOf(this.selectedUser),1);    
+                            }
+                            this.showSnackbar(error.data.message,"error",1000);
+                        }else{
+                            this.showSnackbar(error,"error",1000);
+                        }
+                    }else{
+                        this.showSnackbar(error,"error",1000);
+                    }
                 });
 
                 this.loaderCard=false;
@@ -389,7 +419,7 @@ export default {
             }
             
             this.usersSnackbar.active=true;
-            this.usersSnackbar.style="success";
+            this.usersSnackbar.style=style;
         }
     },
     created(){

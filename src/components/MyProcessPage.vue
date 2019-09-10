@@ -238,6 +238,33 @@
                     </v-card-actions>  
                 </v-card>
             </v-dialog>
+            <v-dialog
+            v-model="deleteDialog"
+            max-width="325"
+            >
+                <v-card :loading="loaderCard">
+                    <v-card-title class="headline">Confirmación</v-card-title>
+                    <v-card-text>
+                        Desea eliminar el proceso "{{selectedTemplateInstance.nombre}}"?
+                    </v-card-text>
+                    <v-card-actions>
+                    <div class="flex-grow-1"></div>
+
+                    <v-btn
+                        text
+                        @click="deleteDialog = false"
+                    >
+                        No
+                    </v-btn>
+                    <v-btn
+                        text
+                        @click="deleteTemplateInstance(selectedTemplateInstance)"
+                    >
+                        Si
+                    </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
             <v-col 
                 v-for="template in templatesInstancesData"
                 :key="template.idInstanciaplantilla" xs="12"
@@ -254,7 +281,7 @@
                     <v-col class="pa-0">
                         <v-row class="ma-0">
                             <v-spacer/>
-                            <v-btn icon large>
+                            <v-btn icon @click="deleteDialog=true;selectedTemplateInstance=template;" large>
                                 <v-icon>
                                     clear
                                 </v-icon>
@@ -321,6 +348,19 @@
                 </v-card>
             </v-col>
         </v-row>
+        <v-snackbar
+        :color="templatesInstancesSnackbar.style"
+        v-model="templatesInstancesSnackbar.active"
+        :timeout="templatesInstancesSnackbar.timeout"
+        >
+        {{ templatesInstancesSnackbar.text }}
+            <v-btn
+            text
+            @click="templatesInstancesSnackbar.active = false"
+            >
+            Cerrar
+            </v-btn>
+        </v-snackbar>
     </v-app>
 </template>
 <script>
@@ -331,7 +371,14 @@ export default {
         usersData:[],
         isLoaded:false,
         dialog:false,
+        deleteDialog:false,
         loaderCard:null,
+        templatesInstancesSnackbar:{
+            text:String,
+            active:false,
+            style:String,
+            timeout:6000
+        }
     }),
     methods:{
         async loadTemplatesIntances(){
@@ -346,6 +393,38 @@ export default {
                 }
             });
         },
+        async deleteTemplateInstance(templateInstance){
+            this.loaderCard="deep-orange"
+
+            await this.$axios.delete(
+                this.$webServicesBaseURL+"Home/InstanciasPlantillas/Delete/"+templateInstance.idInstanciaPlantilla,
+                { withCredentials: true }
+            ).then(response=>{
+                if(response.status==200){
+                    if(response.data.code==29){
+                        this.templatesInstancesData.splice(this.templatesInstancesData.indexOf(templateInstance),1);
+
+                        this.showSnackbar(templateInstance.nombre,"success",2);
+                    }
+                }
+            }).catch(error=>{
+                if(error.status==404){
+                    if(error.data!=null){
+                        if(error.data.code==20){
+                            this.templatesInstancesData.splice(this.templatesInstancesData.indexOf(templateInstance),1);    
+                        }
+                        this.showSnackbar(error.data.message,"error",1000);
+                    }else{
+                        this.showSnackbar(error,"error",1000);
+                    }
+                }else{
+                    this.showSnackbar(error,"error",1000);
+                }
+            });
+
+            this.loaderCard=false;
+            this.deleteDialog=false;
+        },
         async startProcess(templateToStart){
             this.loaderCard="deep-orange"
 
@@ -359,8 +438,19 @@ export default {
                         console.log(response);
                     }
                 }
-            },error=>{
-
+            }).catch(error=>{
+                if(error.status==404){
+                    if(error.data!=null){
+                        if(error.data.code==20){
+                            this.templatesInstancesData.splice(this.templatesInstancesData.indexOf(templateInstance),1);    
+                        }
+                        this.showSnackbar(error.data.message,"error",1000);
+                    }else{
+                        this.showSnackbar(error,"error",1000);
+                    }
+                }else{
+                    this.showSnackbar(error,"error",1000);
+                }
             });
 
             this.loaderCard=false;
@@ -377,6 +467,27 @@ export default {
                     }
                 }
             });
+        },
+        showSnackbar(text,style,indexAction){
+            this.templatesInstancesSnackbar.active=false;
+            
+            switch(indexAction){
+                case 1:{
+                    this.templatesInstancesSnackbar.text="Proceso \""+text+"\" iniciado.";
+                }break;
+                case 2:{
+                    this.templatesInstancesSnackbar.text="Proceso \""+text+"\" eliminado.";
+                }break;
+                /*case 3:{
+                    this.templatesSnackbar.text="Proceso \""+text+"\" actualizada.";
+                }break;*/
+                default:{
+                    this.templatesInstancesSnackbar.text=text;
+                }break;
+            }
+
+            this.templatesInstancesSnackbar.active=true;
+            this.templatesInstancesSnackbar.style=style;
         },
         async initializeAll(){
             await this.loadTemplatesIntances();
