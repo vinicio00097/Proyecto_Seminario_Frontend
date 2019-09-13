@@ -85,7 +85,7 @@
                             <v-expansion-panels multiple>
                                 <v-expansion-panel
                                 >
-                                    <v-expansion-panel-header v-text="'Campos - '+newTemplate.PlantillasCamposDetalle.length"></v-expansion-panel-header>
+                                    <v-expansion-panel-header v-text="'Campos - '+newTemplate.Campos.length"></v-expansion-panel-header>
                                     <v-expansion-panel-content class="pa-0 ma-0">
                                         <v-data-table
                                             hide-default-footer
@@ -96,7 +96,7 @@
                                 </v-expansion-panel>
                             </v-expansion-panels>
                         </v-form>
-                        <v-row class="pa-1"></v-row>
+                        <v-row class="pa-2"></v-row>
                         <v-divider></v-divider>
                         <div class="title text--primary">Pasos</div>
                         <v-form ref="newStepForm">
@@ -133,15 +133,77 @@
                             <v-row class="pa-2"></v-row>
                             <v-expansion-panels multiple>
                                 <v-expansion-panel
-                                v-for="paso in newTemplate.PlantillasPasosDetalle"
-                                :key="paso.idPlantillaCampo"
+                                v-for="paso in newTemplate.Pasos"
+                                :key="paso.idPlantillaPaso"
                                 >
-                                    <v-expansion-panel-header>{{paso.pasoNavigation.nombre}}</v-expansion-panel-header>
+                                    <v-expansion-panel-header>{{paso.nombre}}</v-expansion-panel-header>
                                     <v-expansion-panel-content>
-                                        <v-card-text class="pa-0 pl-2 pr-2 ma-0">
+                                        <v-card-text class="pa-3 ma-0">
                                             <div class="subtitle-1 text--primary">Descripción</div>
-                                            <div class="body-2 text--secondary">{{paso.pasoNavigation.descripcion}}</div>
+                                            <div class="body-2 text--secondary">{{paso.descripcion}}</div>
                                         </v-card-text>
+                                        <v-divider></v-divider>
+                                        <div class="subtitle-1">Datos del paso</div>
+                                        <v-row class="pa-1"></v-row>
+                                        <v-select
+                                            item-color="deep-orange lighten-2"
+                                            solo
+                                            color="deep-orange"
+                                            v-model="paso.usuarios"
+                                            :items="usersData"
+                                            label="Seleccione usuarios"
+                                            item-text="nombres"
+                                            item-value="idUsuario"
+                                            multiple
+                                            chips
+                                            deletable-chips
+                                            return-object
+                                        ></v-select>
+                                        <v-select
+                                            item-color="deep-orange lighten-2"
+                                            solo
+                                            color="deep-orange"
+                                            v-model="paso.datos_pasos"
+                                            :items="JSON.parse(JSON.stringify(newTemplate.Campos))"
+                                            label="Seleccione campos"
+                                            item-text="nombreCampo"
+                                            item-value="idInstanciaPlantillaDato"
+                                            multiple
+                                            chips
+                                            deletable-chips
+                                            return-object
+                                        ></v-select>
+                                        <div class="body-2 text--secondary" align="center">Marque los campos que no serán editables</div>
+                                        <v-list rounded>
+                                            <v-list-item-group
+                                                v-model="model"
+                                                multiple
+                                            >
+                                                <template v-for="(dato) in paso.datos_pasos">
+                                                <v-list-item
+                                                    class="ma-0"
+                                                    :key="dato.idPlantillaDato"
+                                                    :value="dato"
+                                                    active-class="deep-orange lighten-3--text text--accent-4"
+                                                >
+                                                    <template v-slot:default="{ active, toggle }">
+                                                    <v-list-item-content>
+                                                        <v-list-item-title v-text="dato.nombreCampo"></v-list-item-title>
+                                                    </v-list-item-content>
+
+                                                    <v-list-item-action>
+                                                        <v-checkbox
+                                                        :input-value="dato.soloLectura=active"
+                                                        :true-value="dato.soloLectura"
+                                                        color="dark"
+                                                        @click="toggle"
+                                                        ></v-checkbox>
+                                                    </v-list-item-action>
+                                                    </template>
+                                                </v-list-item>
+                                                </template>
+                                            </v-list-item-group>
+                                        </v-list>
                                     </v-expansion-panel-content>
                                 </v-expansion-panel>
                             </v-expansion-panels>
@@ -240,7 +302,7 @@
                         </v-list-item-icon>
                         <v-list-item-content>
                             <v-list-item-title>Cant. de pasos</v-list-item-title>
-                            <v-list-item-subtitle>{{template.plantillasPasosDetalle.length}}</v-list-item-subtitle>
+                            <v-list-item-subtitle>{{template.pasos.length}}</v-list-item-subtitle>
                         </v-list-item-content>
                     </v-list-item>
                     <v-list-item>
@@ -251,7 +313,7 @@
                         </v-list-item-icon>
                         <v-list-item-content>
                             <v-list-item-title>Cant. de campos de info.</v-list-item-title>
-                            <v-list-item-subtitle>{{template.plantillasCamposDetalle.length}}</v-list-item-subtitle>
+                            <v-list-item-subtitle>{{template.campos.length}}</v-list-item-subtitle>
                         </v-list-item-content>
                     </v-list-item>
                     <v-card-actions>
@@ -301,6 +363,7 @@
 export default {
     data:()=>({
         templatesData:[],
+        usersData:[],
         fieldTypeData:[
             {idTipoDato:1,nombre:"Texto"},
             {idTipoDato:2,nombre:"Numérico"},
@@ -329,8 +392,8 @@ export default {
                 v => !!v || 'Descripción es requerido',
                 v => (v && v.length <= 50) || 'Descripción debe ser menor o igual a 50',
             ],
-            PlantillasCamposDetalle:[],
-            PlantillasPasosDetalle:[]
+            Campos:[],
+            Pasos:[]
         },
         newField:{
             nombreCampo:"",
@@ -408,8 +471,10 @@ export default {
         addFields(){
             if(this.$refs.newFieldForm.validate()){
                 var campo={
+                    idorder:this.newTemplate.Campos.length+1,
                     nombreCampo:this.newField.nombreCampo,
                     tipoDato:this.newField.tipoDatoNavigation.idTipoDato,
+                    tipoDatoNavigation:this.newField.tipoDatoNavigation
                 };
 
 
@@ -418,7 +483,7 @@ export default {
                     nombreTipo:this.newField.tipoDatoNavigation.nombre
                 };
 
-                this.newTemplate.PlantillasCamposDetalle.push(campo);
+                this.newTemplate.Campos.push(campo);
 
                 this.fieldsTable.viewItems.push(viewCampo);
 
@@ -429,14 +494,12 @@ export default {
         addSteps(){
             if(this.$refs.newStepForm.validate()){
                 var step={
-                    pasoNavigation:{
-                        nombre:this.newStep.nombre,
-                        descripcion:this.newStep.descripcion
-                    }
+                    nombre:this.newStep.nombre,
+                    descripcion:this.newStep.descripcion
                 };
 
 
-                this.newTemplate.PlantillasPasosDetalle.push(step);
+                this.newTemplate.Pasos.push(step);
 
 
                 this.$refs.newStepForm.reset();
@@ -449,8 +512,8 @@ export default {
                 let newTemplate={
                     nombre:this.newTemplate.nombre,
                     descripcion: this.newTemplate.descripcion,
-                    plantillasCamposDetalle:this.newTemplate.PlantillasCamposDetalle,
-                    plantillasPasosDetalle:this.newTemplate.PlantillasPasosDetalle
+                    campos:this.newTemplate.Campos,
+                    pasos:this.newTemplate.Pasos
                 };
 
                 await this.$axios.post(
@@ -463,6 +526,7 @@ export default {
                             this.templatesData.push(response.data.data);
 
                             this.showSnackbar(newTemplate.nombre,"success",1);
+                            console.log(response.data);
                         }
                     }
                 }).catch(error=>{
@@ -540,8 +604,21 @@ export default {
             this.templatesSnackbar.active=true;
             this.templatesSnackbar.style=style;
         },
+        async loadUsers(){
+            await this.$axios.get(
+                this.$webServicesBaseURL+"Home/Usuarios",
+                {withCredentials:true}
+            ).then(response=>{
+                if(response.status==200){
+                    if(response.data.code==31){
+                        this.usersData=response.data.data;
+                    }
+                }
+            });
+        },
         async initializeAll(){
             await this.loadTemplates();
+            await this.loadUsers();
             this.isLoaded=true;
         }
     },

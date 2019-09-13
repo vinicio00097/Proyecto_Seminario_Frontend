@@ -109,31 +109,24 @@
                                         <v-row>
                                             <v-col>
                                                 <v-menu
-                                                    ref="menu"
-                                                    v-model="menu"
-                                                    :close-on-content-click="false"
-                                                    :return-value.sync="date"
-                                                    transition="scale-transition"
-                                                    offset-y
-                                                    full-width
-                                                    min-width="290px"
-                                                >
+                                                v-model="dateInput2"
+                                                :nudge-right="40"
+                                                transition="scale-transition"
+                                                offset-y
+                                                full-width
+                                                min-width="290px">
                                                     <template v-slot:activator="{ on }">
-                                                    <v-text-field
-                                                        v-model="paso.fechaInicio"
-                                                        label="Picker in menu"
-                                                        prepend-icon="event"
-                                                        readonly
-                                                        v-on="on"
-                                                    ></v-text-field>
+                                                        <v-text-field
+                                                            solo
+                                                            color="deep-orange"
+                                                            v-model="paso.fechaInicio"
+                                                            label="Fecha inicio"
+                                                            readonly
+                                                            v-on="on"
+                                                        ></v-text-field>
                                                     </template>
-                                                    <v-date-picker v-model="paso.fechaInicio" no-title scrollable>
-                                                    <div class="flex-grow-1"></div>
-                                                    <v-btn text color="primary" @click="menu = false">Cancel</v-btn>
-                                                    <v-btn text color="primary" @click="$refs.menu.save(date)">OK</v-btn>
-                                                    </v-date-picker>
+                                                    <v-date-picker v-model="paso.fechaFin" @input="dateInput2 = false"></v-date-picker>
                                                 </v-menu>
-                                                
                                             </v-col>
                                             <v-col>
                                                 <v-menu
@@ -158,65 +151,6 @@
                                                 </v-menu>
                                             </v-col>
                                         </v-row>
-                                        <v-select
-                                            item-color="deep-orange lighten-2"
-                                            solo
-                                            color="deep-orange"
-                                            v-model="paso.usuarios"
-                                            :items="usersData"
-                                            label="Seleccione usuarios"
-                                            item-text="nombres"
-                                            item-value="idUsuario"
-                                            multiple
-                                            chips
-                                            deletable-chips
-                                            return-object
-                                        ></v-select>
-                                        <v-select
-                                            item-color="deep-orange lighten-2"
-                                            solo
-                                            color="deep-orange"
-                                            v-model="paso.datos_pasos"
-                                            :items="JSON.parse(JSON.stringify(selectedTemplateInstance.datos))"
-                                            label="Seleccione campos"
-                                            item-text="nombreCampo"
-                                            item-value="idInstanciaPlantillaDato"
-                                            multiple
-                                            chips
-                                            deletable-chips
-                                            return-object
-                                        ></v-select>
-                                        <div class="body-2 text--secondary" align="center">Marque los campos que no serán editables</div>
-                                        <v-list rounded>
-                                            <v-list-item-group
-                                                v-model="model"
-                                                multiple
-                                            >
-                                                <template v-for="(dato) in paso.datos_pasos">
-                                                <v-list-item
-                                                    class="ma-0"
-                                                    :key="dato.idInstanciaPlantillaDato"
-                                                    :value="dato"
-                                                    active-class="deep-orange lighten-3--text text--accent-4"
-                                                >
-                                                    <template v-slot:default="{ active, toggle }">
-                                                    <v-list-item-content>
-                                                        <v-list-item-title v-text="dato.nombreCampo"></v-list-item-title>
-                                                    </v-list-item-content>
-
-                                                    <v-list-item-action>
-                                                        <v-checkbox
-                                                        :input-value="dato.soloLectura=active"
-                                                        :true-value="dato.soloLectura"
-                                                        color="dark"
-                                                        @click="toggle"
-                                                        ></v-checkbox>
-                                                    </v-list-item-action>
-                                                    </template>
-                                                </v-list-item>
-                                                </template>
-                                            </v-list-item-group>
-                                        </v-list>
                                     </v-expansion-panel-content>
                                 </v-expansion-panel>
                             </v-expansion-panels>
