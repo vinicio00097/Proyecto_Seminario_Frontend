@@ -65,7 +65,7 @@
                                         autocomplete="off"
                                         required
                                     ></v-text-field>
-                                    <v-menu
+                                    <!--<v-menu
                                         v-if="campo.tipoDato==3"
                                         v-model="dateInput1"
                                         :nudge-right="40"
@@ -85,10 +85,34 @@
                                         ></v-text-field>
                                         </template>
                                         <v-date-picker v-model="campo.datoDate" @input="dateInput1 = false"></v-date-picker>
-                                    </v-menu>
+                                    </v-menu>-->
+                                    <v-dialog
+                                        v-if="campo.tipoDato==3"
+                                        ref="inputDateDialog"
+                                        v-model="inputDateDialog"
+                                        :return-value.sync="campo.datoDate"
+                                        persistent
+                                        full-width
+                                        width="290px"
+                                    >
+                                        <template v-slot:activator="{ on }">
+                                        <v-text-field
+                                            solo
+                                            v-model="campo.datoDate"
+                                            :label="campo.nombreCampo"
+                                            readonly
+                                            v-on="on"
+                                        ></v-text-field>
+                                        </template>
+                                        <v-date-picker v-model="campo.datoDate" scrollable>
+                                        <div class="flex-grow-1"></div>
+                                        <v-btn text @click="inputDateDialog = false">Cancel</v-btn>
+                                        <v-btn text @click="closeInputDateDialog(campo.datoDate)">OK</v-btn>
+                                        </v-date-picker>
+                                    </v-dialog>
                                 </v-list-item>
                             </v-list>
-                            <v-divider></v-divider>
+                            <!--<v-divider></v-divider>
                             <div class="title text--primary">Pasos</div>
                             <v-row class="pa-1"></v-row>
                             <v-expansion-panels multiple>
@@ -153,7 +177,7 @@
                                         </v-row>
                                     </v-expansion-panel-content>
                                 </v-expansion-panel>
-                            </v-expansion-panels>
+                            </v-expansion-panels>-->
                         </v-form>
                     </v-card-text>
                     <v-card-actions>
@@ -166,7 +190,7 @@
                             Cancelar
                         </v-btn>
 
-                        <v-btn text color="green" @click="startProcess(selectedTemplateInstance)">
+                        <v-btn text color="light-green accent-3" @click="startProcess(selectedTemplateInstance)">
                             <v-icon left>mdi-play</v-icon> Iniciar
                         </v-btn>
                     </v-card-actions>  
@@ -209,10 +233,10 @@
                 hover
                 >
                 <v-row class="ma-0">
-                    <v-col class="pa-0" lg="9" cols="9">
+                    <v-col class="pa-0" :lg="template.iniciada=='0'?9:null" :cols="template.iniciada=='0'?9:null">
                         <v-card-title>{{template.nombre}}</v-card-title>
                     </v-col>
-                    <v-col class="pa-0">
+                    <v-col class="pa-0" v-if="template.iniciada=='0'">
                         <v-row class="ma-0">
                             <v-spacer/>
                             <v-btn icon @click="deleteDialog=true;selectedTemplateInstance=template;" large>
@@ -268,12 +292,16 @@
                     </v-row>
                     <v-card-actions>
                         <v-layout row class="ma-0">
-                            <v-btn @click="dialog=true;selectedTemplateInstance=template" v-if="template.iniciada=='0'" text icon color="green">
+                            <v-btn @click="dialog=true;selectedTemplateInstance=template" v-if="template.iniciada=='0'" text icon color="light-green accent-3">
                                 <v-icon>mdi-play</v-icon>
                             </v-btn>
-                            <v-btn v-if="template.iniciada=='1'" text icon color="red">
-                                <v-icon>mdi-stop</v-icon>
-                            </v-btn>
+                            <v-progress-circular
+                                v-if="template.iniciada=='1'"
+                                indeterminate
+                                color="light-green accent-3"
+                                size="35"
+                            ></v-progress-circular>
+                            <v-divider vertical class="mx-1 transparent"></v-divider>
                         <v-btn icon>
                             <v-icon>visibility</v-icon>
                         </v-btn>
@@ -306,6 +334,7 @@ export default {
         isLoaded:false,
         dialog:false,
         deleteDialog:false,
+        inputDateDialog:false,
         loaderCard:null,
         templatesInstancesSnackbar:{
             text:String,
@@ -369,7 +398,11 @@ export default {
             ).then(response=>{
                 if(response.status==200){
                     if(response.data.code==23){
-                        console.log(response);
+                        templateToStart.iniciada=response.data.data.iniciada;
+                        templateToStart.datos=response.data.data.datos;
+                        templateToStart.pasos=response.data.data.pasos;
+
+                        this.showSnackbar(templateToStart.nombre,"success",1);
                     }
                 }
             }).catch(error=>{
@@ -422,6 +455,9 @@ export default {
 
             this.templatesInstancesSnackbar.active=true;
             this.templatesInstancesSnackbar.style=style;
+        },
+        closeInputDateDialog(date){
+            this.$refs.inputDateDialog[0].save(date)
         },
         async initializeAll(){
             await this.loadTemplatesIntances();
