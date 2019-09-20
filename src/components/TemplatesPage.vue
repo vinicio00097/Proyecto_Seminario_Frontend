@@ -82,19 +82,38 @@
                                 </v-btn>
                             </v-row>
                             <v-row class="pa-2"></v-row>
-                            <v-expansion-panels multiple>
-                                <v-expansion-panel
-                                >
-                                    <v-expansion-panel-header v-text="'Campos - '+newTemplate.Campos.length"></v-expansion-panel-header>
-                                    <v-expansion-panel-content class="pa-0 ma-0">
-                                        <v-data-table
-                                            hide-default-footer
-                                            :headers="fieldsTable.headers"
-                                            :items="fieldsTable.viewItems"
-                                        ></v-data-table>
-                                    </v-expansion-panel-content>
-                                </v-expansion-panel>
-                            </v-expansion-panels>
+                            <div class="scrolling-wrapper" >
+                                <div class="card" 
+                                    v-for="campo in newTemplate.Campos"
+                                    :key="campo.idPlantillaCampo">
+                                    <v-card          
+                                    width="300"
+                                    class="mx-auto flex-row"
+                                    hover
+                                    >
+                                    <v-row class="ma-0">
+                                        <v-col class="pa-0" lg="9" cols="9">
+                                            <v-card-title>{{campo.nombreCampo}}</v-card-title>
+                                        </v-col>
+                                        <v-col class="pa-0">
+                                            <v-row class="ma-0">
+                                                <v-spacer/>
+                                                <v-btn icon @click="deleteField(campo)" large>
+                                                    <v-icon>
+                                                        clear
+                                                    </v-icon>
+                                                </v-btn>
+                                            </v-row>
+                                        </v-col>
+                                    </v-row>
+                                        <v-card-text>
+                                            <div class="subtitle-1 text--primary">Tipo de campo</div>
+                                            {{campo.tipoDatoNavigation.nombre}}
+                                        </v-card-text>
+                                    </v-card>
+                                </div>
+                                <div class="card"></div>
+                            </div>
                         </v-form>
                         <v-row class="pa-2"></v-row>
                         <v-divider></v-divider>
@@ -131,84 +150,39 @@
                                 </v-btn>
                             </v-row>
                             <v-row class="pa-2"></v-row>
-                            <v-expansion-panels multiple>
-                                <v-expansion-panel
-                                v-for="paso in newTemplate.Pasos"
-                                :key="paso.idPlantillaPaso"
-                                >
-                                    <v-expansion-panel-header>{{paso.nombre}}</v-expansion-panel-header>
-                                    <v-expansion-panel-content>
-                                        <v-card-text class="pa-3 ma-0">
+                            <div class="scrolling-wrapper" >
+                                <div class="card" 
+                                    v-for="paso in newTemplate.Pasos"
+                                    :key="paso.idPlantillaPaso">
+                                    <v-card          
+                                    width="300"
+                                    class="mx-auto flex-row"
+                                    hover
+                                    >
+                                    <v-row class="ma-0">
+                                        <v-col class="pa-0" lg="9" cols="9">
+                                            <v-card-title>{{paso.nombre}}</v-card-title>
+                                        </v-col>
+                                        <v-col class="pa-0">
+                                            <v-row class="ma-0">
+                                                <v-spacer/>
+                                                <v-btn icon @click="deleteStep(paso)" large>
+                                                    <v-icon>
+                                                        clear
+                                                    </v-icon>
+                                                </v-btn>
+                                            </v-row>
+                                        </v-col>
+                                    </v-row>
+                                        <v-card-text>
                                             <div class="subtitle-1 text--primary">Descripción</div>
-                                            <div class="body-2 text--secondary">{{paso.descripcion}}</div>
+                                            {{paso.descripcion}}
                                         </v-card-text>
-                                        <v-divider></v-divider>
-                                        <div class="subtitle-1">Datos del paso</div>
-                                        <v-row class="pa-1"></v-row>
-                                        <v-select
-                                            item-color="deep-orange lighten-2"
-                                            solo
-                                            color="deep-orange"
-                                            v-model="paso.usuarios"
-                                            :items="usersData"
-                                            label="Seleccione usuarios"
-                                            item-text="nombres"
-                                            item-value="idUsuario"
-                                            multiple
-                                            chips
-                                            deletable-chips
-                                            return-object
-                                        ></v-select>
-                                        <v-select
-                                            item-color="deep-orange lighten-2"
-                                            solo
-                                            color="deep-orange"
-                                            v-model="paso.datos_pasos"
-                                            :items="JSON.parse(JSON.stringify(newTemplate.Campos))"
-                                            label="Seleccione campos"
-                                            item-text="nombreCampo"
-                                            item-value="idInstanciaPlantillaDato"
-                                            multiple
-                                            chips
-                                            deletable-chips
-                                            return-object
-                                        ></v-select>
-                                        <div class="body-2 text--secondary" align="center">Marque los campos que no serán editables</div>
-                                        <v-list rounded>
-                                            <v-list-item-group
-                                                v-model="model"
-                                                multiple
-                                            >
-                                                <template v-for="(dato) in paso.datos_pasos">
-                                                <v-list-item
-                                                    class="ma-0"
-                                                    :key="dato.idPlantillaDato"
-                                                    :value="dato"
-                                                    active-class="deep-orange lighten-3--text text--accent-4"
-                                                >
-                                                    <template v-slot:default="{ active, toggle }">
-                                                    <v-list-item-content>
-                                                        <v-list-item-title v-text="dato.nombreCampo"></v-list-item-title>
-                                                    </v-list-item-content>
-
-                                                    <v-list-item-action>
-                                                        <v-checkbox
-                                                        :input-value="dato.soloLectura=active"
-                                                        :true-value="dato.soloLectura"
-                                                        color="dark"
-                                                        @click="toggle"
-                                                        ></v-checkbox>
-                                                    </v-list-item-action>
-                                                    </template>
-                                                </v-list-item>
-                                                </template>
-                                            </v-list-item-group>
-                                        </v-list>
-                                    </v-expansion-panel-content>
-                                </v-expansion-panel>
-                            </v-expansion-panels>
+                                    </v-card>
+                                </div>
+                                <div class="card"></div>
+                            </div>
                         </v-form>
-
                     </v-card-text>
                     <v-card-actions>
                         <div class="flex-grow-1"></div>
@@ -272,7 +246,7 @@
                 sm="6" md="4" lg="3" xl="2" cols="12">
                 <v-card          
                 max-width="400"
-                class="mx-auto rounded-0"
+                class="mx-auto rounded-5"
                 hover
                 >
                 <v-row class="ma-0">
@@ -330,6 +304,8 @@
                 </v-card>
             </v-col>
         </v-row>
+        <!--<router-view @close="console.log('hola');"/>
+        <v-btn @click="goDetails()">hola</v-btn>-->
         <v-fab-transition>
             <v-btn
             color="deep-orange"
@@ -360,6 +336,8 @@
     </v-app>
 </template>
 <script>
+import TemplateDetailPage from './TemplateDetailPage'
+
 export default {
     data:()=>({
         templatesData:[],
@@ -380,6 +358,7 @@ export default {
         dialog:false,
         actionDialog:"",
         newTemplateDialog:false,
+        testDialogComponent:false,
         selectedTemplate:Object,
         newTemplate:{
             nombre:"",
@@ -424,6 +403,9 @@ export default {
             viewItems:[]
         }
     }),
+    components:{
+        TemplateDetailPage
+    },
     methods:{
         async crear_proceso(plantilla){
             this.loaderCard="deep-orange"
@@ -491,6 +473,9 @@ export default {
 
             }
         },
+        deleteField(field){
+            this.newTemplate.Campos.splice(this.newTemplate.Campos.indexOf(field),1);
+        },
         addSteps(){
             if(this.$refs.newStepForm.validate()){
                 var step={
@@ -504,6 +489,9 @@ export default {
 
                 this.$refs.newStepForm.reset();
             }
+        },
+        deleteStep(step){
+            this.newTemplate.Pasos.splice(this.newTemplate.Pasos.indexOf(step),1);
         },
         async addTemplate(){
             this.loaderCard="deep-orange";
@@ -583,6 +571,10 @@ export default {
             this.$refs.newStepForm.reset();
             this.newTemplateDialog = false;
         },
+        goDetails(){
+            this.$router.push({ path: 'Plantillas/Detalle' });
+            console.log(this.$route.matched[0].name);
+        },
         showSnackbar(text,style,indexAction){
             this.templatesSnackbar.active=false;
             
@@ -627,3 +619,18 @@ export default {
     },
 }
 </script>
+<style scoped>
+ .scrolling-wrapper {
+    display: flex;
+    -webkit-overflow-scrolling: touch;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+  .card {
+    padding-top: 25px;
+    padding-bottom: 25px;
+    padding-left: 20px;
+    display: inline-block;
+  }
+</style>

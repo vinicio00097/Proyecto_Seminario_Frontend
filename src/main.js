@@ -1,6 +1,7 @@
 import StartPage from './components/StartPage'
 import UsersPage from './components/UsersPage'
 import TemplatesPage from './components/TemplatesPage'
+import TemplateDetailPage from './components/TemplateDetailPage'
 import MyProcessPage from './components/MyProcessPage'
 import Vue from 'vue'
 import App from './App.vue'
@@ -21,7 +22,9 @@ const router = new VueRouter({
       {path: '/', redirect:'Inicio'},
       {path: '/Inicio', component: StartPage,name:'Inicio'},
       {path: '/Usuarios',component: UsersPage,name:'Usuarios'},
-      {path: '/Plantillas',component: TemplatesPage,name:'Plantillas'},
+      {path: '/Plantillas',component: TemplatesPage,name:'Plantillas',children:[
+        {path: 'Detalle',component: TemplateDetailPage,name:'Plantilla'}
+      ]},
       {path: '/Procesos',component: MyProcessPage,name:'Mis procesos'}
   ],
 })

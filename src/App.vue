@@ -7,7 +7,7 @@
       >
       <v-app-bar-nav-icon @click="openCloseDrawer"></v-app-bar-nav-icon>
       <v-toolbar-title class="headline">
-        <span>{{this.$route.name}}</span>
+        <span>{{this.$route.matched[0].name}}</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn icon >
@@ -35,12 +35,12 @@
       </v-menu>
     </v-app-bar>
     <v-navigation-drawer
+      floating
       :expand-on-hover="isOpen"
       v-model="isActive"
       disable-resize-watcher="true"
       disable-route-watcher="true"
       :permanent="isOpen"
-      dark
       height="100%"
       app
     >
@@ -90,7 +90,7 @@
         <v-subheader>Cuenta</v-subheader>
         <v-list-item
           link
-          @click="isActive=!isActive;dialog = true;hola()"
+          @click="isActive=!isActive;dialog = true;"
         >
           <v-list-item-icon>
             <v-icon>exit_to_app</v-icon>
@@ -133,7 +133,7 @@
     </v-navigation-drawer>
     <v-content>
       <v-container fluid>
-        <transition>
+        <transition name="fade-transition">
           <router-view/>
         </transition>
       </v-container>

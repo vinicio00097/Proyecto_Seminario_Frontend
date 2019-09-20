@@ -461,7 +461,7 @@ export default {
         },
         async initializeAll(){
             await this.loadTemplatesIntances();
-            await this.loadUsers();
+            //await this.loadUsers();
             this.isLoaded=true;
         }
     },
