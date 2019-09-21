@@ -47,39 +47,36 @@
                         <v-divider></v-divider>
                         <div class="title text--primary">Campos de información</div>
                         <v-form ref="newFieldForm">
-                            <v-row>
-                                <v-col>
-                                    <v-text-field
-                                    solo
-                                    color="deep-orange"
-                                    v-model="newField.nombreCampo"
-                                    :counter="50"
-                                    :rules="newField.nombreCampoRules"
-                                    label="Nombre de campo"
-                                    autocomplete="off"
-                                    required
-                                    ></v-text-field>
-                                </v-col>
-                                <v-col>
-                                    <v-select
-                                        solo
-                                        item-color="deep-orange lighten-2"
-                                        color="deep-orange"
-                                        v-model="newField.tipoDatoNavigation"
-                                        :items="fieldTypeData"
-                                        item-text="nombre"
-                                        item-value="idTipoDato"
-                                        :rules="newField.tipoDatoNavigationRules"
-                                        label="Tipo de campo"
-                                        autocomplete="off"
-                                        required
-                                        return-object
-                                    ></v-select>
-                                </v-col>
-                            </v-row>
+                            <v-text-field
+                            solo
+                            color="deep-orange"
+                            v-model="newField.nombreCampo"
+                            :counter="50"
+                            :rules="newField.nombreCampoRules"
+                            label="Nombre de campo"
+                            autocomplete="off"
+                            required
+                            ></v-text-field>
+                            <v-select
+                                solo
+                                item-color="deep-orange lighten-2"
+                                color="deep-orange"
+                                v-model="newField.tipoDatoNavigation"
+                                :items="fieldTypeData"
+                                item-text="nombre"
+                                item-value="idTipoDato"
+                                :rules="newField.tipoDatoNavigationRules"
+                                label="Tipo de campo"
+                                autocomplete="off"
+                                required
+                                return-object
+                            ></v-select>
                             <v-row justify="center">
-                                <v-btn rounded @click="addFields()">Agregar campo
-                                </v-btn>
+                                <v-badge color="teal">
+                                    <template v-slot:badge>{{newTemplate.Campos.length}}</template>
+                                    <v-btn rounded @click="addFields()">Agregar campo
+                                    </v-btn>
+                                </v-badge>
                             </v-row>
                             <v-row class="pa-2"></v-row>
                             <div class="scrolling-wrapper" >
@@ -98,7 +95,7 @@
                                         <v-col class="pa-0">
                                             <v-row class="ma-0">
                                                 <v-spacer/>
-                                                <v-btn icon @click="deleteField(campo)" large>
+                                                <v-btn icon @click="deleteField(campo)">
                                                     <v-icon>
                                                         clear
                                                     </v-icon>
@@ -118,36 +115,120 @@
                         <v-row class="pa-2"></v-row>
                         <v-divider></v-divider>
                         <div class="title text--primary">Pasos</div>
-                        <v-form ref="newStepForm">
-                            <v-row>
-                                <v-col>
-                                    <v-text-field
-                                    solo
-                                    color="deep-orange"
-                                    v-model="newStep.nombre"
-                                    :counter="50"
-                                    :rules="newStep.nombreRules"
-                                    label="Nombre paso"
-                                    autocomplete="off"
-                                    required
-                                    ></v-text-field>
-                                </v-col>
-                                <v-col>
-                                    <v-text-field
-                                    solo
-                                    color="deep-orange"
-                                    v-model="newStep.descripcion"
-                                    :counter="50"
-                                    :rules="newStep.descripcionRules"
-                                    label="Descripción paso"
-                                    autocomplete="off"
-                                    required
-                                    ></v-text-field>
-                                </v-col>
-                            </v-row>
+                        <v-dialog
+                        v-model="newStepDialog"
+                        max-width="300"
+                        scrollable
+                        >
+                            <v-card :loading="loaderCard">
+                                <v-card-title class="headline">Nuevo paso</v-card-title>
+
+                                <v-card-text>
+                                <v-form ref="newStepForm">
+                                    <v-row>
+                                        <v-text-field
+                                            solo
+                                            color="deep-orange"
+                                            v-model="newStep.nombre"
+                                            :counter="50"
+                                            :rules="newStep.nombreRules"
+                                            label="Nombre paso"
+                                            autocomplete="off"
+                                            required
+                                            ></v-text-field>
+                                    </v-row>
+                                    <v-row>
+                                        <v-text-field
+                                            solo
+                                            color="deep-orange"
+                                            v-model="newStep.descripcion"
+                                            :counter="50"
+                                            :rules="newStep.descripcionRules"
+                                            label="Descripción paso"
+                                            autocomplete="off"
+                                            required
+                                            ></v-text-field>
+                                    </v-row>
+                                        <div class="subtitle-1">Datos del paso</div>
+                                    <v-row class="pa-1"></v-row>
+                                    <v-select
+                                        item-color="deep-orange lighten-2"
+                                        solo
+                                        color="deep-orange"
+                                        v-model="newStep.usuarios"
+                                        :items="usersData"
+                                        label="Seleccione usuarios"
+                                        item-text="nombres"
+                                        item-value="idUsuario"
+                                        multiple
+                                        chips
+                                        deletable-chips
+                                        return-object
+                                    ></v-select>
+                                    <v-select
+                                        item-color="deep-orange lighten-2"
+                                        solo
+                                        color="deep-orange"
+                                        v-model="newStep.datos_pasos"
+                                        :items="JSON.parse(JSON.stringify(newTemplate.Campos))"
+                                        label="Seleccione campos"
+                                        item-text="nombreCampo"
+                                        item-value="idInstanciaPlantillaDato"
+                                        multiple
+                                        chips
+                                        deletable-chips
+                                        return-object
+                                    ></v-select>
+                                    <div class="body-2 text--secondary" align="center">Marque los campos que no serán editables</div>
+                                    <v-list rounded>
+                                        <v-list-item-group
+                                            v-model="model"
+                                            multiple
+                                        >
+                                            <template v-for="(dato) in newStep.datos_pasos">
+                                            <v-list-item
+                                                class="ma-0"
+                                                :key="dato.idPlantillaDato"
+                                                :value="dato"
+                                                active-class="deep-orange lighten-3--text text--accent-4"
+                                            >
+                                                <template v-slot:default="{ active, toggle }">
+                                                <v-list-item-content>
+                                                    <v-list-item-title v-text="dato.nombreCampo"></v-list-item-title>
+                                                </v-list-item-content>
+
+                                                <v-list-item-action>
+                                                    <v-checkbox
+                                                    :input-value="dato.soloLectura=active"
+                                                    :true-value="dato.soloLectura"
+                                                    color="dark"
+                                                    @click="toggle"
+                                                    ></v-checkbox>
+                                                </v-list-item-action>
+                                                </template>
+                                            </v-list-item>
+                                            </template>
+                                        </v-list-item-group>
+                                    </v-list>
+                                </v-form>
+                                </v-card-text>
+                                <v-card-actions>
+                                    <div class="flex-grow-1"></div>
+                                    <v-btn
+                                        text
+                                        @click="addSteps()"
+                                    >
+                                        Agregar
+                                    </v-btn>
+                                </v-card-actions>                              
+                            </v-card>
+                        </v-dialog>
                             <v-row justify="center">
-                                <v-btn rounded @click="addSteps()">Agregar paso
-                                </v-btn>
+                                    <v-badge color="teal">
+                                        <template v-slot:badge>{{newTemplate.Pasos.length}}</template>
+                                        <v-btn rounded @click="newStepDialog=true;">Agregar paso
+                                        </v-btn>
+                                    </v-badge>
                             </v-row>
                             <v-row class="pa-2"></v-row>
                             <div class="scrolling-wrapper" >
@@ -166,7 +247,7 @@
                                         <v-col class="pa-0">
                                             <v-row class="ma-0">
                                                 <v-spacer/>
-                                                <v-btn icon @click="deleteStep(paso)" large>
+                                                <v-btn icon @click="deleteStep(paso)">
                                                     <v-icon>
                                                         clear
                                                     </v-icon>
@@ -178,11 +259,32 @@
                                             <div class="subtitle-1 text--primary">Descripción</div>
                                             {{paso.descripcion}}
                                         </v-card-text>
+                                            <v-list-item>
+                                                <v-list-item-icon>
+                                                    <v-btn icon>
+                                                        <v-icon>people</v-icon>
+                                                    </v-btn>
+                                                </v-list-item-icon>
+                                                <v-list-item-content>
+                                                    <v-list-item-title>Cant. de usuarios</v-list-item-title>
+                                                    <v-list-item-subtitle>{{paso.usuarios.length}}</v-list-item-subtitle>
+                                                </v-list-item-content>
+                                            </v-list-item>
+                                            <v-list-item>
+                                                <v-list-item-icon>
+                                                    <v-btn icon>
+                                                        <v-icon>list</v-icon>
+                                                    </v-btn>
+                                                </v-list-item-icon>
+                                                <v-list-item-content>
+                                                    <v-list-item-title>Cant. de campos de info.</v-list-item-title>
+                                                    <v-list-item-subtitle>{{paso.datos_pasos.length}}</v-list-item-subtitle>
+                                                </v-list-item-content>
+                                            </v-list-item>
                                     </v-card>
                                 </div>
                                 <div class="card"></div>
                             </div>
-                        </v-form>
                     </v-card-text>
                     <v-card-actions>
                         <div class="flex-grow-1"></div>
@@ -293,7 +395,7 @@
                     <v-card-actions>
                         <v-layout row class="ma-0">
                         <v-btn color="deep-orange" @click="dialog=true;selectedTemplate=template;actionDialog='createProcess'" rounded>Crear</v-btn>
-                        <v-btn icon>
+                        <v-btn icon @click="goDetails(template)">
                             <v-icon>edit</v-icon>
                         </v-btn>
                         <v-btn icon>
@@ -304,8 +406,7 @@
                 </v-card>
             </v-col>
         </v-row>
-        <!--<router-view @close="console.log('hola');"/>
-        <v-btn @click="goDetails()">hola</v-btn>-->
+        <router-view @close="console.log('hola');"/>
         <v-fab-transition>
             <v-btn
             color="deep-orange"
@@ -358,6 +459,7 @@ export default {
         dialog:false,
         actionDialog:"",
         newTemplateDialog:false,
+        newStepDialog:false,
         testDialogComponent:false,
         selectedTemplate:Object,
         newTemplate:{
@@ -393,7 +495,9 @@ export default {
             descripcionRules:[
                 v => !!v || 'Descripción paso es requerido',
                 v => (v && v.length <= 50) || 'Descripción paso debe ser menor o igual a 50',
-            ]
+            ],
+            datos_pasos:[],
+            usuarios:[],
         },
         fieldsTable:{
             headers:[
@@ -480,7 +584,9 @@ export default {
             if(this.$refs.newStepForm.validate()){
                 var step={
                     nombre:this.newStep.nombre,
-                    descripcion:this.newStep.descripcion
+                    descripcion:this.newStep.descripcion,
+                    datos_pasos:this.newStep.datos_pasos,
+                    usuarios:this.newStep.usuarios
                 };
 
 
@@ -488,6 +594,7 @@ export default {
 
 
                 this.$refs.newStepForm.reset();
+                this.newStepDialog=false;
             }
         },
         deleteStep(step){
@@ -568,11 +675,11 @@ export default {
         onCancelDialog(){
             this.$refs.newTemplateForm.reset();
             this.$refs.newFieldForm.reset();
-            this.$refs.newStepForm.reset();
+            //this.$refs.newStepForm.reset();
             this.newTemplateDialog = false;
         },
-        goDetails(){
-            this.$router.push({ path: 'Plantillas/Detalle' });
+        goDetails(plantilla){
+            this.$router.push({ name:'Plantilla', params: { idPlantilla: plantilla.idPlantilla } });
             console.log(this.$route.matched[0].name);
         },
         showSnackbar(text,style,indexAction){
@@ -623,7 +730,7 @@ export default {
  .scrolling-wrapper {
     display: flex;
     -webkit-overflow-scrolling: touch;
-    overflow-x: scroll;
+    overflow-x: auto;
     overflow-y: hidden;
     white-space: nowrap;
 }
