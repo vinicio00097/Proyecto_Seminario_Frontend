@@ -292,12 +292,18 @@
                     </v-row>
                     <v-card-actions>
                         <v-layout row class="ma-0">
-                            <v-btn @click="dialog=true;selectedTemplateInstance=template" v-if="template.iniciada=='0'" text icon color="light-green accent-3">
+                            <v-btn @click="dialog=true;selectedTemplateInstance=template" v-if="template.iniciada=='0'&&template.estado=='0'" text icon color="light-green accent-3">
                                 <v-icon>mdi-play</v-icon>
                             </v-btn>
                             <v-progress-circular
-                                v-if="template.iniciada=='1'"
+                                v-if="template.iniciada=='1'&&template.estado=='0'"
                                 indeterminate
+                                color="light-green accent-3"
+                                size="35"
+                            ></v-progress-circular>
+                            <v-progress-circular
+                                v-if="template.iniciada=='1'&&template.estado=='1'"
+                                value="100"
                                 color="light-green accent-3"
                                 size="35"
                             ></v-progress-circular>

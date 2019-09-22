@@ -20,7 +20,7 @@
                 <v-card :loading="loaderCard" class="hola">
                     <v-card-title class="headline">Nueva plantilla</v-card-title>
                     <v-card-text>
-                        <div class="title text--primary">Información de plantilla</div>
+                        <div class="title text--secondary">Información de plantilla</div>
                         <v-row class="pa-1"></v-row>
                         <v-form ref="newTemplateForm">
                             <v-text-field
@@ -45,7 +45,7 @@
                             ></v-text-field>
                         </v-form>
                         <v-divider></v-divider>
-                        <div class="title text--primary">Campos de información</div>
+                        <div class="title text--secondary">Campos de información</div>
                         <v-form ref="newFieldForm">
                             <v-text-field
                             solo
@@ -74,7 +74,7 @@
                             <v-row justify="center">
                                 <v-badge color="teal">
                                     <template v-slot:badge>{{newTemplate.Campos.length}}</template>
-                                    <v-btn rounded @click="addFields()">Agregar campo
+                                    <v-btn outlined rounded @click="addFields()">Agregar campo
                                     </v-btn>
                                 </v-badge>
                             </v-row>
@@ -114,7 +114,7 @@
                         </v-form>
                         <v-row class="pa-2"></v-row>
                         <v-divider></v-divider>
-                        <div class="title text--primary">Pasos</div>
+                        <div class="title text--secondary">Pasos</div>
                         <v-dialog
                         v-model="newStepDialog"
                         max-width="300"
@@ -224,11 +224,11 @@
                             </v-card>
                         </v-dialog>
                             <v-row justify="center">
-                                    <v-badge color="teal">
-                                        <template v-slot:badge>{{newTemplate.Pasos.length}}</template>
-                                        <v-btn rounded @click="newStepDialog=true;">Agregar paso
-                                        </v-btn>
-                                    </v-badge>
+                                <v-badge color="teal">
+                                    <template v-slot:badge>{{newTemplate.Pasos.length}}</template>
+                                    <v-btn outlined rounded @click="newStepDialog=true;">Agregar paso
+                                    </v-btn>
+                                </v-badge>
                             </v-row>
                             <v-row class="pa-2"></v-row>
                             <div class="scrolling-wrapper" >
@@ -601,9 +601,9 @@ export default {
             this.newTemplate.Pasos.splice(this.newTemplate.Pasos.indexOf(step),1);
         },
         async addTemplate(){
-            this.loaderCard="deep-orange";
-
             if(this.$refs.newTemplateForm.validate()){
+                this.loaderCard="deep-orange";
+
                 let newTemplate={
                     nombre:this.newTemplate.nombre,
                     descripcion: this.newTemplate.descripcion,

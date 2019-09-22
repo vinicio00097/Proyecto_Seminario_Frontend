@@ -63,69 +63,79 @@
               </div>
               <div class="card"></div>
             </div>
+            <v-row class="pl-8" justify="left">
+              <v-btn outlined rounded>
+                Agregar
+              </v-btn>
+            </v-row>
             <v-row class="pa-2"/>
             <div class="title text--secondary">Pasos</div>
-              <div class="scrolling-wrapper"
-                v-for="paso in templateData.pasos"
-                :key="paso.idPlantillaPaso">
-                  <div class="card">
-                      <v-card          
-                      width="300"
-                      class="mx-auto flex-row"
-                      hover
-                      >
-                      <v-row class="ma-0">
-                          <v-col class="pa-0" lg="9" cols="9">
-                              <v-card-title>{{paso.nombre}}</v-card-title>
-                          </v-col>
-                          <v-col class="pa-0">
-                              <v-row class="ma-0">
-                                  <v-spacer/>
-                                  <v-btn icon @click="deleteStep(paso)">
-                                      <v-icon>
-                                          clear
-                                      </v-icon>
-                                  </v-btn>
-                              </v-row>
-                          </v-col>
-                      </v-row>
-                          <v-card-text>
-                              <div class="subtitle-1 text--primary">Descripción</div>
-                              {{paso.descripcion}}
-                          </v-card-text>
-                          <v-list-item>
-                              <v-list-item-icon>
-                                  <v-btn icon>
-                                      <v-icon>people</v-icon>
-                                  </v-btn>
-                              </v-list-item-icon>
-                              <v-list-item-content>
-                                  <v-list-item-title>Cant. de usuarios</v-list-item-title>
-                                  <v-list-item-subtitle>{{paso.usuarios.length}}</v-list-item-subtitle>
-                              </v-list-item-content>
-                          </v-list-item>
-                          <v-list-item>
-                              <v-list-item-icon>
-                                  <v-btn icon>
-                                      <v-icon>list</v-icon>
-                                  </v-btn>
-                              </v-list-item-icon>
-                              <v-list-item-content>
-                                  <v-list-item-title>Cant. de campos de info.</v-list-item-title>
-                                  <v-list-item-subtitle>{{paso.datos_Pasos.length}}</v-list-item-subtitle>
-                              </v-list-item-content>
-                          </v-list-item>
-                          <v-card-actions align="center">
-                            <v-layout row class="ma-0" justify-center>
-                              <v-btn icon>
-                                  <v-icon>edit</v-icon>
-                              </v-btn>
-                            </v-layout>
-                          </v-card-actions>
-                      </v-card>
-                  </div>
-                  <div class="card"></div>
-              </div>
+            <div class="scrolling-wrapper"
+              v-for="paso in templateData.pasos"
+              :key="paso.idPlantillaPaso">
+                <div class="card">
+                    <v-card          
+                    width="300"
+                    class="mx-auto flex-row"
+                    hover
+                    >
+                    <v-row class="ma-0">
+                        <v-col class="pa-0" lg="9" cols="9">
+                            <v-card-title>{{paso.nombre}}</v-card-title>
+                        </v-col>
+                        <v-col class="pa-0">
+                            <v-row class="ma-0">
+                                <v-spacer/>
+                                <v-btn icon @click="deleteStep(paso)">
+                                    <v-icon>
+                                        clear
+                                    </v-icon>
+                                </v-btn>
+                            </v-row>
+                        </v-col>
+                    </v-row>
+                        <v-card-text>
+                            <div class="subtitle-1 text--primary">Descripción</div>
+                            {{paso.descripcion}}
+                        </v-card-text>
+                        <v-list-item>
+                            <v-list-item-icon>
+                                <v-btn icon>
+                                    <v-icon>people</v-icon>
+                                </v-btn>
+                            </v-list-item-icon>
+                            <v-list-item-content>
+                                <v-list-item-title>Cant. de usuarios</v-list-item-title>
+                                <v-list-item-subtitle>{{paso.usuarios.length}}</v-list-item-subtitle>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <v-list-item>
+                            <v-list-item-icon>
+                                <v-btn icon>
+                                    <v-icon>list</v-icon>
+                                </v-btn>
+                            </v-list-item-icon>
+                            <v-list-item-content>
+                                <v-list-item-title>Cant. de campos de info.</v-list-item-title>
+                                <v-list-item-subtitle>{{paso.datos_Pasos.length}}</v-list-item-subtitle>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <v-card-actions align="center">
+                          <v-layout row class="ma-0" justify-center>
+                            <v-btn icon>
+                                <v-icon>edit</v-icon>
+                            </v-btn>
+                          </v-layout>
+                        </v-card-actions>
+                    </v-card>
+                </div>
+              <div class="card"></div>
+            </div>
+            <v-row class="pl-8" justify="left">
+              <v-btn rounded outlined>
+                Agregar
+              </v-btn>
+            </v-row>
           </div>
           <v-snackbar
           :color="templateSnackbar.style"
