@@ -612,10 +612,12 @@ export default {
             });
         },
         updateModifiedTemplate(newTemplate){
-            this.selectedTemplate.nombre=newTemplate.nombre;
-            this.selectedTemplate.descripcion=newTemplate.descripcion;
-            this.selectedTemplate.campos=newTemplate.campos;
-            this.selectedTemplate.pasos=newTemplate.pasos;
+            let selectedTemplate=this.templatesData.find(template=>template.idPlantilla==newTemplate.idPlantilla);
+            
+            selectedTemplate.nombre=newTemplate.nombre;
+            selectedTemplate.descripcion=newTemplate.descripcion;
+            selectedTemplate.campos=newTemplate.campos;
+            selectedTemplate.pasos=newTemplate.pasos;
         },
         addFields(){
             if(this.$refs.newFieldForm.validate()){
