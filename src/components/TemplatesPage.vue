@@ -15,9 +15,9 @@
             scrollable
             v-model="newTemplateDialog"
             max-width="450"
-            :persistent="true"
+            persistent
             >
-                <v-card :loading="loaderCard" class="hola">
+                <v-card :loading="loaderCard">
                     <v-card-title class="headline">Nueva plantilla</v-card-title>
                     <v-card-text>
                         <div class="title text--secondary">Información de plantilla</div>
@@ -46,48 +46,90 @@
                         </v-form>
                         <v-divider></v-divider>
                         <div class="title text--secondary">Campos de información</div>
-                        <v-form ref="newFieldForm">
-                            <v-text-field
-                            solo
-                            color="deep-orange"
-                            v-model="newField.nombreCampo"
-                            :counter="50"
-                            :rules="newField.nombreCampoRules"
-                            label="Nombre de campo"
-                            autocomplete="off"
-                            required
-                            ></v-text-field>
-                            <v-select
-                                solo
-                                item-color="deep-orange lighten-2"
-                                color="deep-orange"
-                                v-model="newField.tipoDatoNavigation"
-                                :items="fieldTypeData"
-                                item-text="nombre"
-                                item-value="idTipoDato"
-                                :rules="newField.tipoDatoNavigationRules"
-                                label="Tipo de campo"
-                                autocomplete="off"
-                                required
-                                return-object
-                            ></v-select>
-                            <v-row justify="center">
-                                <v-badge color="teal">
-                                    <template v-slot:badge>{{newTemplate.Campos.length}}</template>
-                                    <v-btn outlined rounded @click="addFields()">Agregar campo
-                                    </v-btn>
-                                </v-badge>
-                            </v-row>
-                            <v-row class="pa-2"></v-row>
-                            <div class="scrolling-wrapper" >
-                                <div class="card" 
-                                    v-for="campo in newTemplate.Campos"
-                                    :key="campo.idPlantillaCampo">
-                                    <v-card          
-                                    width="300"
-                                    class="mx-auto flex-row"
-                                    hover
+                        <v-row class="pa-1"></v-row>
+                        <v-dialog
+                        v-model="newFieldDialog"
+                        max-width="300"
+                        scrollable
+                        >
+                            <v-card>
+                                <v-card-title class="headline" v-if="newFieldDialogAction=='add'">Nuevo campo</v-card-title>
+                                <v-card-title class="headline" v-if="newFieldDialogAction=='edit'">Edición campo</v-card-title>
+                                <v-card-title class="headline" v-if="newFieldDialogAction=='delete'">Confirmación</v-card-title>
+                                <v-card-text v-if="newFieldDialogAction!='delete'">
+                                    <v-form ref="newFieldForm">
+                                        <v-text-field
+                                        solo
+                                        color="deep-orange"
+                                        v-model="newField.nombreCampo"
+                                        :counter="50"
+                                        :rules="newField.nombreCampoRules"
+                                        label="Nombre de campo"
+                                        autocomplete="off"
+                                        required
+                                        ></v-text-field>
+                                        <v-select
+                                        solo
+                                        item-color="deep-orange lighten-2"
+                                        color="deep-orange"
+                                        v-model="newField.tipoDatoNavigation"
+                                        :items="fieldTypeData"
+                                        item-text="nombre"
+                                        item-value="idTipoDato"
+                                        :rules="newField.tipoDatoNavigationRules"
+                                        label="Tipo de campo"
+                                        autocomplete="off"
+                                        required
+                                        return-object
+                                        ></v-select>
+                                    </v-form>
+                                </v-card-text>
+                                <v-card-text v-if="newFieldDialogAction=='delete'">
+                                    Desea eliminar el campo "{{selectedField.nombreCampo}}"?
+                                </v-card-text>
+                                <v-card-actions>
+                                    <div class="flex-grow-1"></div>
+                                    <v-btn
+                                        v-if="newFieldDialogAction=='add'"
+                                        text
+                                        @click="addFields()"
                                     >
+                                        Agregar
+                                    </v-btn>
+                                    <v-btn
+                                        v-if="newFieldDialogAction=='edit'"
+                                        text
+                                        @click="updateField()"
+                                    >
+                                        Guardar
+                                    </v-btn>
+                                    <v-btn
+                                        v-if="newFieldDialogAction=='delete'"
+                                        text
+                                        @click="deleteField(selectedField)"
+                                    >
+                                        Eliminar
+                                    </v-btn>
+                                </v-card-actions>                              
+                            </v-card>
+                        </v-dialog>
+                        <v-row justify="center">
+                            <v-badge color="teal">
+                                <template v-slot:badge>{{newTemplate.Campos.length}}</template>
+                                <v-btn outlined rounded @click="openFieldDialog('add')">Agregar campo
+                                </v-btn>
+                            </v-badge>
+                        </v-row>
+                        <v-row class="pa-2"></v-row>
+                        <div class="scrolling-wrapper" >
+                            <div class="card" 
+                                v-for="campo in newTemplate.Campos"
+                                :key="campo.idPlantillaCampo">
+                                <v-card          
+                                width="300"
+                                class="mx-auto flex-row"
+                                hover
+                                >
                                     <v-row class="ma-0">
                                         <v-col class="pa-0" lg="9" cols="9">
                                             <v-card-title>{{campo.nombreCampo}}</v-card-title>
@@ -95,7 +137,7 @@
                                         <v-col class="pa-0">
                                             <v-row class="ma-0">
                                                 <v-spacer/>
-                                                <v-btn icon @click="deleteField(campo)">
+                                                <v-btn icon @click="openFieldDialog('delete',campo)">
                                                     <v-icon>
                                                         clear
                                                     </v-icon>
@@ -103,53 +145,57 @@
                                             </v-row>
                                         </v-col>
                                     </v-row>
-                                        <v-card-text>
-                                            <div class="subtitle-1 text--primary">Tipo de campo</div>
-                                            {{campo.tipoDatoNavigation.nombre}}
-                                        </v-card-text>
-                                    </v-card>
-                                </div>
-                                <div class="card"></div>
+                                    <v-card-text>
+                                        <div class="subtitle-1 text--primary">Tipo de campo</div>
+                                        {{campo.tipoDatoNavigation.nombre}}
+                                    </v-card-text>
+                                    <v-card-actions>
+                                        <v-layout row class="ma-0" justify-center>
+                                            <v-btn icon @click="openFieldDialog('edit',campo)">
+                                                <v-icon>edit</v-icon>
+                                            </v-btn>
+                                        </v-layout>
+                                    </v-card-actions>
+                                </v-card>
                             </div>
-                        </v-form>
+                            <div class="card"></div>
+                        </div>
                         <v-row class="pa-2"></v-row>
                         <v-divider></v-divider>
                         <div class="title text--secondary">Pasos</div>
+                        <v-row class="pa-1"></v-row>
                         <v-dialog
                         v-model="newStepDialog"
-                        max-width="300"
+                        max-width="325"
                         scrollable
                         >
                             <v-card :loading="loaderCard">
-                                <v-card-title class="headline">Nuevo paso</v-card-title>
-
-                                <v-card-text>
+                                <v-card-title class="headline" v-if="newStepDialogAction=='add'">Nuevo paso</v-card-title>
+                                <v-card-title class="headline" v-if="newStepDialogAction=='edit'">Edición paso</v-card-title>
+                                <v-card-title class="headline" v-if="newStepDialogAction=='delete'">Confirmación</v-card-title>
+                                <v-card-text v-if="newStepDialogAction!='delete'">
                                 <v-form ref="newStepForm">
-                                    <v-row>
-                                        <v-text-field
-                                            solo
-                                            color="deep-orange"
-                                            v-model="newStep.nombre"
-                                            :counter="50"
-                                            :rules="newStep.nombreRules"
-                                            label="Nombre paso"
-                                            autocomplete="off"
-                                            required
-                                            ></v-text-field>
-                                    </v-row>
-                                    <v-row>
-                                        <v-text-field
-                                            solo
-                                            color="deep-orange"
-                                            v-model="newStep.descripcion"
-                                            :counter="50"
-                                            :rules="newStep.descripcionRules"
-                                            label="Descripción paso"
-                                            autocomplete="off"
-                                            required
-                                            ></v-text-field>
-                                    </v-row>
-                                        <div class="subtitle-1">Datos del paso</div>
+                                    <v-text-field
+                                        solo
+                                        color="deep-orange"
+                                        v-model="newStep.nombre"
+                                        :counter="50"
+                                        :rules="newStep.nombreRules"
+                                        label="Nombre paso"
+                                        autocomplete="off"
+                                        required
+                                        ></v-text-field>
+                                    <v-text-field
+                                        solo
+                                        color="deep-orange"
+                                        v-model="newStep.descripcion"
+                                        :counter="50"
+                                        :rules="newStep.descripcionRules"
+                                        label="Descripción paso"
+                                        autocomplete="off"
+                                        required
+                                        ></v-text-field>
+                                    <div class="subtitle-1">Datos del paso</div>
                                     <v-row class="pa-1"></v-row>
                                     <v-select
                                         item-color="deep-orange lighten-2"
@@ -179,46 +225,50 @@
                                         deletable-chips
                                         return-object
                                     ></v-select>
-                                    <div class="body-2 text--secondary" align="center">Marque los campos que no serán editables</div>
-                                    <v-list rounded>
-                                        <v-list-item-group
-                                            v-model="model"
-                                            multiple
-                                        >
-                                            <template v-for="(dato) in newStep.datos_pasos">
-                                            <v-list-item
-                                                class="ma-0"
-                                                :key="dato.idPlantillaDato"
-                                                :value="dato"
-                                                active-class="deep-orange lighten-3--text text--accent-4"
-                                            >
-                                                <template v-slot:default="{ active, toggle }">
-                                                <v-list-item-content>
-                                                    <v-list-item-title v-text="dato.nombreCampo"></v-list-item-title>
-                                                </v-list-item-content>
-
-                                                <v-list-item-action>
-                                                    <v-checkbox
-                                                    :input-value="dato.soloLectura=active"
-                                                    :true-value="dato.soloLectura"
-                                                    color="dark"
-                                                    @click="toggle"
-                                                    ></v-checkbox>
-                                                </v-list-item-action>
-                                                </template>
-                                            </v-list-item>
-                                            </template>
-                                        </v-list-item-group>
-                                    </v-list>
+                                    <div class="body-2 text--secondary" align="center">
+                                        Seleccione los campos que no serán editables de la lista de abajo
+                                    </div>
+                                    <v-select
+                                        item-color="deep-orange lighten-2"
+                                        solo
+                                        color="deep-orange"
+                                        v-model="newStep.read_only_datos"
+                                        :items="newStep.datos_pasos"
+                                        label="Seleccione campos"
+                                        item-text="nombreCampo"
+                                        item-value="idInstanciaPlantillaDato"
+                                        multiple
+                                        chips
+                                        deletable-chips
+                                        return-object
+                                    ></v-select>
                                 </v-form>
+                                </v-card-text>
+                                <v-card-text v-if="newStepDialogAction=='delete'">
+                                    Desea eliminar el paso "{{selectedStep.nombre}}"?
                                 </v-card-text>
                                 <v-card-actions>
                                     <div class="flex-grow-1"></div>
                                     <v-btn
+                                        v-if="newStepDialogAction=='add'"
                                         text
                                         @click="addSteps()"
                                     >
                                         Agregar
+                                    </v-btn>
+                                    <v-btn
+                                        v-if="newStepDialogAction=='edit'"
+                                        text
+                                        @click="updateStep()"
+                                    >
+                                        Guardar
+                                    </v-btn>
+                                    <v-btn
+                                        v-if="newStepDialogAction=='delete'"
+                                        text
+                                        @click="deleteStep(selectedStep)"
+                                    >
+                                        Eliminar
                                     </v-btn>
                                 </v-card-actions>                              
                             </v-card>
@@ -226,7 +276,7 @@
                             <v-row justify="center">
                                 <v-badge color="teal">
                                     <template v-slot:badge>{{newTemplate.Pasos.length}}</template>
-                                    <v-btn outlined rounded @click="newStepDialog=true;">Agregar paso
+                                    <v-btn outlined rounded @click="openStepDialog('add')">Agregar paso
                                     </v-btn>
                                 </v-badge>
                             </v-row>
@@ -247,7 +297,7 @@
                                         <v-col class="pa-0">
                                             <v-row class="ma-0">
                                                 <v-spacer/>
-                                                <v-btn icon @click="deleteStep(paso)">
+                                                <v-btn icon @click="openStepDialog('delete',paso)">
                                                     <v-icon>
                                                         clear
                                                     </v-icon>
@@ -281,6 +331,13 @@
                                                     <v-list-item-subtitle>{{paso.datos_pasos.length}}</v-list-item-subtitle>
                                                 </v-list-item-content>
                                             </v-list-item>
+                                        <v-card-actions>
+                                            <v-layout row class="ma-0" justify-center>
+                                                <v-btn icon @click="openStepDialog('edit',paso)">
+                                                    <v-icon>edit</v-icon>
+                                                </v-btn>
+                                            </v-layout>
+                                        </v-card-actions>
                                     </v-card>
                                 </div>
                                 <div class="card"></div>
@@ -406,7 +463,7 @@
                 </v-card>
             </v-col>
         </v-row>
-        <router-view @close="console.log('hola');"/>
+        <router-view @close="updateModifiedTemplate"/>
         <v-fab-transition>
             <v-btn
             color="deep-orange"
@@ -441,6 +498,7 @@ import TemplateDetailPage from './TemplateDetailPage'
 
 export default {
     data:()=>({
+        test:false,
         templatesData:[],
         usersData:[],
         fieldTypeData:[
@@ -459,7 +517,12 @@ export default {
         dialog:false,
         actionDialog:"",
         newTemplateDialog:false,
+        newFieldDialog:false,
+        newFieldDialogAction:"",
+        selectedField:Object,
         newStepDialog:false,
+        newStepDialogAction:"",
+        selectedStep:Object,
         testDialogComponent:false,
         selectedTemplate:Object,
         newTemplate:{
@@ -497,15 +560,9 @@ export default {
                 v => (v && v.length <= 50) || 'Descripción paso debe ser menor o igual a 50',
             ],
             datos_pasos:[],
+            read_only_datos:[],
             usuarios:[],
         },
-        fieldsTable:{
-            headers:[
-                { text: 'Nombre campo', value: 'nombreCampo' },
-                { text: 'Tipo', value: 'nombreTipo' },
-            ],
-            viewItems:[]
-        }
     }),
     components:{
         TemplateDetailPage
@@ -554,31 +611,54 @@ export default {
                     }
             });
         },
+        updateModifiedTemplate(newTemplate){
+            this.selectedTemplate.nombre=newTemplate.nombre;
+            this.selectedTemplate.descripcion=newTemplate.descripcion;
+            this.selectedTemplate.campos=newTemplate.campos;
+            this.selectedTemplate.pasos=newTemplate.pasos;
+        },
         addFields(){
             if(this.$refs.newFieldForm.validate()){
                 var campo={
-                    idorder:this.newTemplate.Campos.length+1,
+                    idorder:new Date().getTime(),
                     nombreCampo:this.newField.nombreCampo,
+                    soloLectura:false,
                     tipoDato:this.newField.tipoDatoNavigation.idTipoDato,
                     tipoDatoNavigation:this.newField.tipoDatoNavigation
                 };
 
-
-                var viewCampo={
-                    nombreCampo:this.newField.nombreCampo,
-                    nombreTipo:this.newField.tipoDatoNavigation.nombre
-                };
-
                 this.newTemplate.Campos.push(campo);
 
-                this.fieldsTable.viewItems.push(viewCampo);
-
                 this.$refs.newFieldForm.reset();
-
+                this.newFieldDialog=false;
             }
+        },
+        openFieldDialog(action,field){
+            this.newFieldDialogAction=action;
+            this.selectedField=field;
+
+            if(action=="edit"){
+                this.newField.nombreCampo=field.nombreCampo;
+                this.newField.tipoDatoNavigation=field.tipoDatoNavigation;
+            }else{
+                this.newField.nombreCampo="";
+                this.newField.tipoDatoNavigation="";
+            }
+
+            this.newFieldDialog=true;
         },
         deleteField(field){
             this.newTemplate.Campos.splice(this.newTemplate.Campos.indexOf(field),1);
+            this.newFieldDialog=false;
+        },
+        updateField(){
+            if(this.$refs.newFieldForm.validate()){
+                this.selectedField.nombreCampo=this.newField.nombreCampo;
+                this.selectedField.tipoDatoNavigation=this.newField.tipoDatoNavigation;
+
+                this.$refs.newFieldForm.reset();
+                this.newFieldDialog=false;
+            }
         },
         addSteps(){
             if(this.$refs.newStepForm.validate()){
@@ -589,6 +669,11 @@ export default {
                     usuarios:this.newStep.usuarios
                 };
 
+                this.newStep.read_only_datos.forEach(element => {
+                    element.soloLectura=true;
+                });
+
+                console.log(step);
 
                 this.newTemplate.Pasos.push(step);
 
@@ -597,8 +682,54 @@ export default {
                 this.newStepDialog=false;
             }
         },
+        openStepDialog(action,step){
+            this.newStepDialogAction=action;
+            this.selectedStep=step;
+
+            if(action=="edit"){
+                this.newStep.nombre=step.nombre;
+                this.newStep.descripcion=step.descripcion;
+                this.newStep.datos_pasos=step.datos_pasos;
+
+                this.newStep.read_only_datos=[];
+                this.newStep.datos_pasos.forEach(element=>{
+                    if(element.soloLectura){
+                        this.newStep.read_only_datos.push(element);
+                    }
+                });
+                this.newStep.usuarios=step.usuarios;
+            }else{
+                this.newStep.nombre="";
+                this.newStep.descripcion="";
+                this.newStep.datos_pasos=[];
+                this.newStep.usuarios=[];
+            }
+
+            this.newStepDialog=true;
+        },
+        updateStep(){
+            if(this.$refs.newStepForm.validate()){
+                this.selectedStep.nombre=this.newStep.nombre;
+                this.selectedStep.descripcion=this.newStep.descripcion;
+                this.selectedStep.datos_pasos=this.newStep.datos_pasos;
+                this.selectedStep.usuarios=this.newStep.usuarios;
+                this.selectedStep.read_only_datos=this.newStep.read_only_datos;
+
+                this.selectedStep.datos_pasos.forEach(element=>{
+                    element.soloLectura=false;
+                });
+
+                this.selectedStep.read_only_datos.forEach(element => {
+                    element.soloLectura=true;
+                });
+
+                this.$refs.newStepForm.reset();
+                this.newStepDialog=false;
+            }
+        },
         deleteStep(step){
             this.newTemplate.Pasos.splice(this.newTemplate.Pasos.indexOf(step),1);
+            this.newStepDialog=false;
         },
         async addTemplate(){
             if(this.$refs.newTemplateForm.validate()){
@@ -674,7 +805,7 @@ export default {
         },
         onCancelDialog(){
             this.$refs.newTemplateForm.reset();
-            this.$refs.newFieldForm.reset();
+            //this.$refs.newFieldForm.reset();
             //this.$refs.newStepForm.reset();
             this.newTemplateDialog = false;
         },
@@ -719,6 +850,9 @@ export default {
             await this.loadTemplates();
             await this.loadUsers();
             this.isLoaded=true;
+        },
+        value(hola){
+            console.log(hola);
         }
     },
     created(){
