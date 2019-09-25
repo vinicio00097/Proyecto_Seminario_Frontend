@@ -69,7 +69,7 @@
             <v-row class="pa-5" align="center">
               <div class="title text--secondary">Información de plantilla</div>
               <div class="pl-2" />
-              <v-btn icon x-large @click="openEditInfoDialog()">
+              <v-btn icon v-if="!readOnly" x-large @click="openEditInfoDialog()">
                 <v-icon>edit</v-icon>
               </v-btn>
             </v-row>
@@ -151,7 +151,7 @@
               </v-card>
             </v-dialog>
             <v-row class="pa-2"></v-row>
-            <v-row class="pl-8" justify="left">
+            <v-row v-if="!readOnly" class="pl-8" justify="left">
               <v-btn outlined rounded @click="openFieldDialog('add')">
                 Agregar
               </v-btn>
@@ -172,7 +172,7 @@
                       <v-col class="pa-0">
                           <v-row class="ma-0">
                               <v-spacer/>
-                              <v-btn icon @click="openFieldDialog('delete',campo)">
+                              <v-btn icon v-if="!readOnly" @click="openFieldDialog('delete',campo)">
                                   <v-icon>
                                       clear
                                   </v-icon>
@@ -186,7 +186,7 @@
                     </v-card-text>
                     <v-card-actions>
                       <v-layout row class="ma-0" justify-center>
-                        <v-btn icon @click="openFieldDialog('edit',campo)">
+                        <v-btn icon v-if="!readOnly" @click="openFieldDialog('edit',campo)">
                             <v-icon>edit</v-icon>
                         </v-btn>
                       </v-layout>
@@ -307,7 +307,7 @@
                 </v-card>
               </v-dialog>
             <v-row class="pa-2"></v-row>
-            <v-row class="pl-8" justify="left">
+            <v-row v-if="!readOnly" class="pl-8" justify="left">
               <v-btn outlined rounded @click="openStepDialog('add')">
                 Agregar
               </v-btn>
@@ -328,7 +328,7 @@
                         <v-col class="pa-0">
                             <v-row class="ma-0">
                                 <v-spacer/>
-                                <v-btn icon @click="openStepDialog('delete',paso)">
+                                <v-btn icon v-if="!readOnly" @click="openStepDialog('delete',paso)">
                                     <v-icon>
                                         clear
                                     </v-icon>
@@ -364,7 +364,7 @@
                         </v-list-item>
                         <v-card-actions>
                           <v-layout row class="ma-0" justify-center>
-                            <v-btn icon @click="openStepDialog('edit',paso)">
+                            <v-btn icon v-if="!readOnly" @click="openStepDialog('edit',paso)">
                                 <v-icon>edit</v-icon>
                             </v-btn>
                           </v-layout>
@@ -408,7 +408,7 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <v-fab-transition>
+      <v-fab-transition v-if="!readOnly">
             <v-btn
             v-show="canSave"
             color="white"
@@ -428,6 +428,7 @@
 <script>
 
 export default {
+  props: ['readOnly'],
   data: ()=>({
     fieldTypeData:[
       {idTipoDato:1,nombre:"Texto"},

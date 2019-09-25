@@ -474,10 +474,10 @@
                                 </v-list>
                             </v-menu>
                             <v-divider vertical class="mx-1 transparent"></v-divider>
-                        <v-btn icon @click="goDetails(template)">
+                        <v-btn icon @click="goDetails(template,'edit')">
                             <v-icon>edit</v-icon>
                         </v-btn>
-                        <v-btn icon>
+                        <v-btn icon @click="goDetails(template,'see')">
                             <v-icon>visibility</v-icon>
                         </v-btn>
                         </v-layout>
@@ -485,7 +485,7 @@
                 </v-card>
             </v-col>
         </v-row>
-        <router-view @close="updateModifiedTemplate"/>
+        <router-view @close="updateModifiedTemplate" :readOnly="readOnlyDetails"/>
         <v-fab-transition>
             <v-btn
             color="deep-orange"
@@ -520,7 +520,7 @@ import TemplateDetailPage from './TemplateDetailPage'
 
 export default {
     data:()=>({
-        test:false,
+        readOnlyDetails:false,
         templatesData:[],
         usersData:[],
         fieldTypeData:[
@@ -634,12 +634,14 @@ export default {
             });
         },
         updateModifiedTemplate(newTemplate){
-            let selectedTemplate=this.templatesData.find(template=>template.idPlantilla==newTemplate.idPlantilla);
+            if(newTemplate!=null){
+                let selectedTemplate=this.templatesData.find(template=>template.idPlantilla==newTemplate.idPlantilla);
             
-            selectedTemplate.nombre=newTemplate.nombre;
-            selectedTemplate.descripcion=newTemplate.descripcion;
-            selectedTemplate.campos=newTemplate.campos;
-            selectedTemplate.pasos=newTemplate.pasos;
+                selectedTemplate.nombre=newTemplate.nombre;
+                selectedTemplate.descripcion=newTemplate.descripcion;
+                selectedTemplate.campos=newTemplate.campos;
+                selectedTemplate.pasos=newTemplate.pasos;
+            }
         },
         addFields(){
             if(this.$refs.newFieldForm.validate()){
@@ -830,8 +832,14 @@ export default {
             //this.$refs.newStepForm.reset();
             this.newTemplateDialog = false;
         },
-        goDetails(plantilla){
-            this.$router.push({ name:'Plantilla', params: { idPlantilla: plantilla.idPlantilla } });
+        goDetails(plantilla,action){
+            if(action=="edit"){
+                this.readOnlyDetails=false;
+                this.$router.push({ name:'Plantilla', params: { idPlantilla: plantilla.idPlantilla } });
+            }else{
+                this.readOnlyDetails=true;
+                this.$router.push({ name:'Plantilla', params: { idPlantilla: plantilla.idPlantilla } });
+            }
         },
         showSnackbar(text,style,indexAction){
             this.templatesSnackbar.active=false;

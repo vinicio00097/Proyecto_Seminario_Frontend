@@ -193,7 +193,8 @@ export default {
     ],
     multiLevelRoutes:[
       { title: 'Actividades', icon: 'dashboard',childs:[
-        {title: 'Mis procesos',icon:'assignment_ind',link:'/Procesos'}
+        {title: 'Mis procesos',icon:'assignment_ind',link:'/Procesos'},
+        {title: 'Procesos',icon:'settings',link:'/ListaProcesos'}
       ]}
     ],
     globalWidth:0,

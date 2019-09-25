@@ -65,27 +65,6 @@
                                         autocomplete="off"
                                         required
                                     ></v-text-field>
-                                    <!--<v-menu
-                                        v-if="campo.tipoDato==3"
-                                        v-model="dateInput1"
-                                        :nudge-right="40"
-                                        transition="scale-transition"
-                                        offset-y
-                                        full-width
-                                        min-width="290px"
-                                    >
-                                        <template v-slot:activator="{ on }">
-                                        <v-text-field
-                                            outlined
-                                            color="deep-orange"
-                                            v-model="campo.datoDate"
-                                            :label="campo.nombreCampo"
-                                            readonly
-                                            v-on="on"
-                                        ></v-text-field>
-                                        </template>
-                                        <v-date-picker v-model="campo.datoDate" @input="dateInput1 = false"></v-date-picker>
-                                    </v-menu>-->
                                     <v-dialog
                                         v-if="campo.tipoDato==3"
                                         ref="inputDateDialog"
@@ -112,72 +91,6 @@
                                     </v-dialog>
                                 </v-list-item>
                             </v-list>
-                            <!--<v-divider></v-divider>
-                            <div class="title text--primary">Pasos</div>
-                            <v-row class="pa-1"></v-row>
-                            <v-expansion-panels multiple>
-                                <v-expansion-panel
-                                v-for="paso in selectedTemplateInstance.pasos"
-                                :key="paso.idPlantillaPasoDetalle"
-                                >
-                                    <v-expansion-panel-header>{{paso.nombre}}</v-expansion-panel-header>
-                                    <v-expansion-panel-content>
-                                        <v-card-text class="pa-3 ma-0">
-                                            <div class="subtitle-1 text--primary">Descripción</div>
-                                            <div class="body-2 text--secondary">{{paso.descripcion}}</div>
-                                        </v-card-text>
-                                        <v-divider></v-divider>
-                                        <div class="subtitle-1">Datos del paso</div>
-                                        <v-row class="pa-1"></v-row>
-                                        <div class="body-2 text--secondary" align="center">Seleccione fecha de inicio y fecha de finalización para este paso</div>
-                                        <v-row>
-                                            <v-col>
-                                                <v-menu
-                                                v-model="dateInput2"
-                                                :nudge-right="40"
-                                                transition="scale-transition"
-                                                offset-y
-                                                full-width
-                                                min-width="290px">
-                                                    <template v-slot:activator="{ on }">
-                                                        <v-text-field
-                                                            solo
-                                                            color="deep-orange"
-                                                            v-model="paso.fechaInicio"
-                                                            label="Fecha inicio"
-                                                            readonly
-                                                            v-on="on"
-                                                        ></v-text-field>
-                                                    </template>
-                                                    <v-date-picker v-model="paso.fechaFin" @input="dateInput2 = false"></v-date-picker>
-                                                </v-menu>
-                                            </v-col>
-                                            <v-col>
-                                                <v-menu
-                                                    v-model="dateInput3"
-                                                    :nudge-right="40"
-                                                    transition="scale-transition"
-                                                    offset-y
-                                                    full-width
-                                                    min-width="290px"
-                                                >
-                                                    <template v-slot:activator="{ on }">
-                                                        <v-text-field
-                                                            solo
-                                                            color="deep-orange"
-                                                            v-model="paso.fechaFin"
-                                                            label="Fecha fin"
-                                                            readonly
-                                                            v-on="on"
-                                                        ></v-text-field>
-                                                    </template>
-                                                    <v-date-picker v-model="paso.fechaFin" @input="dateInput3 = false"></v-date-picker>
-                                                </v-menu>
-                                            </v-col>
-                                        </v-row>
-                                    </v-expansion-panel-content>
-                                </v-expansion-panel>
-                            </v-expansion-panels>-->
                         </v-form>
                     </v-card-text>
                     <v-card-actions>
@@ -429,18 +342,6 @@ export default {
             this.loaderCard=false;
             this.dialog=false;
         },
-        async loadUsers(){
-            await this.$axios.get(
-                this.$webServicesBaseURL+"Home/Usuarios",
-                {withCredentials:true}
-            ).then(response=>{
-                if(response.status==200){
-                    if(response.data.code==31){
-                        this.usersData=response.data.data;
-                    }
-                }
-            });
-        },
         showSnackbar(text,style,indexAction){
             this.templatesInstancesSnackbar.active=false;
             
@@ -467,7 +368,6 @@ export default {
         },
         async initializeAll(){
             await this.loadTemplatesIntances();
-            //await this.loadUsers();
             this.isLoaded=true;
         }
     },

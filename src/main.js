@@ -3,6 +3,7 @@ import UsersPage from './components/UsersPage'
 import TemplatesPage from './components/TemplatesPage'
 import TemplateDetailPage from './components/TemplateDetailPage'
 import MyProcessPage from './components/MyProcessPage'
+import AllProcessPage from './components/AllProcessPage'
 import Vue from 'vue'
 import App from './App.vue'
 import vuetify from './plugins/vuetify';
@@ -26,6 +27,7 @@ const router = new VueRouter({
         {path: 'Detalle/:idPlantilla',component: TemplateDetailPage,name:'Plantilla'}
       ]},
       {path: '/Procesos',component: MyProcessPage,name:'Mis procesos'},
+      {path: '/ListaProcesos',component: AllProcessPage,name:'Procesos'},
   ],
 })
 
