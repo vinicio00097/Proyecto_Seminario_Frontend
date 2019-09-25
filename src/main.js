@@ -25,7 +25,7 @@ const router = new VueRouter({
       {path: '/Plantillas',component: TemplatesPage,name:'Plantillas',children:[
         {path: 'Detalle/:idPlantilla',component: TemplateDetailPage,name:'Plantilla'}
       ]},
-      {path: '/Procesos',component: MyProcessPage,name:'Mis procesos'}
+      {path: '/Procesos',component: MyProcessPage,name:'Mis procesos'},
   ],
 })
 

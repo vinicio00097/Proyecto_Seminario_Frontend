@@ -451,7 +451,29 @@
                     </v-list-item>
                     <v-card-actions>
                         <v-layout row class="ma-0">
-                        <v-btn color="deep-orange" @click="dialog=true;selectedTemplate=template;actionDialog='createProcess'" rounded>Crear</v-btn>
+                        <!--<v-btn color="deep-orange" @click="dialog=true;selectedTemplate=template;actionDialog='createProcess'" rounded>Crear</v-btn>-->
+                            <v-menu
+                            origin="center center"
+                            transition="fade-transition"
+                            offset-x
+                            offset-y
+                            >
+                                <template v-slot:activator="{ on }">
+                                    <v-btn icon v-on="on">
+                                    <v-icon>more_horiz</v-icon>
+                                    </v-btn>
+                                </template>
+
+                                <v-list>
+                                    <v-list-item @click="dialog=true;selectedTemplate=template;actionDialog='createProcess'">
+                                        <v-list-item-title>Crear</v-list-item-title>
+                                    </v-list-item>
+                                    <v-list-item @click="() => {}">
+                                        <v-list-item-title>Crear e iniciar</v-list-item-title>
+                                    </v-list-item>
+                                </v-list>
+                            </v-menu>
+                            <v-divider vertical class="mx-1 transparent"></v-divider>
                         <v-btn icon @click="goDetails(template)">
                             <v-icon>edit</v-icon>
                         </v-btn>
@@ -675,8 +697,6 @@ export default {
                     element.soloLectura=true;
                 });
 
-                console.log(step);
-
                 this.newTemplate.Pasos.push(step);
 
 
@@ -754,7 +774,6 @@ export default {
                             this.templatesData.push(response.data.data);
 
                             this.showSnackbar(newTemplate.nombre,"success",1);
-                            console.log(response.data);
                         }
                     }
                 }).catch(error=>{
@@ -813,7 +832,6 @@ export default {
         },
         goDetails(plantilla){
             this.$router.push({ name:'Plantilla', params: { idPlantilla: plantilla.idPlantilla } });
-            console.log(this.$route.matched[0].name);
         },
         showSnackbar(text,style,indexAction){
             this.templatesSnackbar.active=false;
@@ -853,9 +871,6 @@ export default {
             await this.loadUsers();
             this.isLoaded=true;
         },
-        value(hola){
-            console.log(hola);
-        }
     },
     created(){
         this.initializeAll();

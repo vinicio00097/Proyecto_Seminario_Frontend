@@ -134,7 +134,8 @@
                 v-for="user in usersData"
                 :key="user.idUsuario" xs="12"
                 sm="6" md="4" lg="3" xl="2" cols="12">
-                <v-card          
+                <v-card        
+                v-if="user.idUsuario!=session_claims.user_id"  
                 max-width="400"
                 class="mx-auto rounded-0"
                 hover
@@ -213,6 +214,7 @@
 <script>
 export default {
     data:()=>({
+        session_claims:Object,
         usersData:[],
         ranges:[
             {id:"1",nombre:"Administrativo"},
@@ -424,6 +426,9 @@ export default {
     },
     created(){
         this.initializeAll();
+    },
+    mounted(){
+        this.session_claims=JSON.parse(atob(this.$cookies.get("session_token").split('.')[1]));
     }
 }
 </script>

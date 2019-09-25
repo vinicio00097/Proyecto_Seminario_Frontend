@@ -477,22 +477,5 @@ export default {
 }
 </script>
 <style scoped>
-    .hola::-webkit-scrollbar {
-        width: 10px;
-    }
 
-    /* Track */
-    .hola::-webkit-scrollbar-track {
-        background: #f1f1f1; 
-    }
-    
-    /* Handle */
-    .hola::-webkit-scrollbar-thumb {
-        background: #888; 
-    }
-
-    /* Handle on hover */
-    .hola::-webkit-scrollbar-thumb:hover {
-        background: #555; 
-    }
 </style>

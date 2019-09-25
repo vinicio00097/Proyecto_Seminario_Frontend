@@ -85,6 +85,31 @@
             <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+        <v-list-group
+          v-for="item in multiLevelRoutes"
+          :key="item.title"
+          :prepend-icon="item.icon"
+          color="white"
+        >
+          <template v-slot:activator>
+            <v-list-item-title>{{item.title}}</v-list-item-title>
+          </template>
+          <v-list-item
+            v-for="child in item.childs"
+            :key="child.title"
+            link
+            :to="child.link"
+            active-class="deep-orange white--text"
+            @click="isActive=!isActive"
+          >
+            <v-list-item-icon>
+              <v-icon>{{ child.icon }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title>{{ child.title }}</v-list-item-title>
+            </v-list-item-content>
+        </v-list-item>
+        </v-list-group>
         <v-row class="pa-2"></v-row>
         <v-divider class="mx-2" :inset="inset"></v-divider>
         <v-subheader>Cuenta</v-subheader>
@@ -165,7 +190,11 @@ export default {
       { title: 'Inicio', icon: 'home',link:'/Inicio' },
       { title: 'Usuarios', icon: 'people' ,link:'/Usuarios'},
       { title: 'Plantillas', icon: 'grid_on' ,link:'/Plantillas'},
-      { title: 'Mis procesos', icon: 'view_module',link:'/Procesos'}
+    ],
+    multiLevelRoutes:[
+      { title: 'Actividades', icon: 'dashboard',childs:[
+        {title: 'Mis procesos',icon:'assignment_ind',link:'/Procesos'}
+      ]}
     ],
     globalWidth:0,
     isOpen:true,
@@ -202,16 +231,13 @@ export default {
       });
       this.dialog=false;
     },
-    hola(){
-      console.log(this.$router);
-    }
   },
   mounted() {
     var oauth_session_claims=JSON.parse(atob(this.$cookies.get("oauth_session_token").split('.')[1]));
     var session_claims=JSON.parse(atob(this.$cookies.get("session_token").split('.')[1]));
 
     this.userInfo.userProfileImg=oauth_session_claims.picture;
-    this.userInfo.userName=oauth_session_claims.name;
+    this.userInfo.userName=session_claims.user_name;
     this.userInfo.userEmail=oauth_session_claims.email;
     this.userInfo.userLevel=session_claims.user_level;
 
