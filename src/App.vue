@@ -1,9 +1,9 @@
 <template>
   <v-app>
-    <v-app-bar 
+    <!--<v-app-bar 
       app
       flat
-      :color="!isOpen?'deep-orange':'deep-orange'"
+      color="deep-orange"
       >
       <v-app-bar-nav-icon @click="openCloseDrawer"></v-app-bar-nav-icon>
       <v-toolbar-title class="headline">
@@ -33,7 +33,7 @@
           </v-list-item>
         </v-list>
       </v-menu>
-    </v-app-bar>
+    </v-app-bar>-->
     <v-navigation-drawer
       floating
       :expand-on-hover="isOpen"
@@ -159,7 +159,7 @@
     <v-content>
       <v-container fluid>
         <transition name="fade-transition">
-          <router-view/>
+          <router-view @openClose="openCloseDrawer"/>
         </transition>
       </v-container>
     </v-content>
@@ -176,10 +176,6 @@ import Vue from 'vue'
 export default {
   name: 'App',
   data: () => ({
-    app_bar_actions:[
-      { index: 1,title:"Ajustes"},
-      { index: 2,title:"Acerca de..."}
-    ],
     userInfo:{
       userProfileImg: String,
       userName: String,
@@ -190,13 +186,14 @@ export default {
       { title: 'Inicio', icon: 'home',link:'/Inicio' },
       { title: 'Usuarios', icon: 'people' ,link:'/Usuarios'},
       { title: 'Plantillas', icon: 'grid_on' ,link:'/Plantillas'},
+      { title: 'Actividades', icon: 'dashboard' ,link:'/Actividades'},
     ],
-    multiLevelRoutes:[
+    /*multiLevelRoutes:[
       { title: 'Actividades', icon: 'dashboard',childs:[
         {title: 'Mis procesos',icon:'assignment_ind',link:'/Procesos'},
         {title: 'Procesos',icon:'settings',link:'/ListaProcesos'}
       ]}
-    ],
+    ],*/
     globalWidth:0,
     isOpen:true,
     isActive:true,

@@ -509,7 +509,6 @@ export default {
     },
     hola(){
       if(!this.onlyNestedDialogs){
-        console.log(this.$route);
         this.opened=false;
         this.$emit('close');
         this.$router.go(-1);
@@ -524,7 +523,6 @@ export default {
             if(response.data.code==11){
               this.templateData=response.data.data;
 
-              console.log(this.templateData);
             }
         }
       }).catch(error=>{
@@ -574,12 +572,6 @@ export default {
                 tipoDatoNavigation:this.newField.tipoDatoNavigation
             };
 
-
-            var viewCampo={
-                nombreCampo:this.newField.nombreCampo,
-                nombreTipo:this.newField.tipoDatoNavigation.nombre
-            };
-
             this.templateData.campos.push(campo);
 
             this.$refs.newFieldForm.reset();
@@ -618,6 +610,7 @@ export default {
     updateField(){
         if(this.$refs.newFieldForm.validate()){
             this.selectedField.nombreCampo=this.newField.nombreCampo;
+            this.selectedField.tipoDato=this.newField.tipoDatoNavigation.idTipoDato;
             this.selectedField.tipoDatoNavigation=this.newField.tipoDatoNavigation;
 
             this.$refs.newFieldForm.reset();
@@ -637,8 +630,6 @@ export default {
             this.newStep.read_only_datos.forEach(element => {
                 element.soloLectura="1";
             });
-
-            console.log(step);
 
             this.templateData.pasos.push(step);
 

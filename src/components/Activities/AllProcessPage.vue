@@ -21,19 +21,7 @@
                 hover
                 >
                 <v-row class="ma-0">
-                    <v-col class="pa-0" :lg="template.iniciada=='0'?9:null" :cols="template.iniciada=='0'?9:null">
-                        <v-card-title>{{template.nombre}}</v-card-title>
-                    </v-col>
-                    <v-col class="pa-0" v-if="template.iniciada=='0'">
-                        <v-row class="ma-0">
-                            <v-spacer/>
-                            <v-btn icon @click="deleteDialog=true;selectedTemplateInstance=template;" large>
-                                <v-icon>
-                                    clear
-                                </v-icon>
-                            </v-btn>
-                        </v-row>
-                    </v-col>
+                    <v-card-title>{{template.nombre}}</v-card-title>
                 </v-row>
                     <v-card-text>
                         <div class="subtitle-1 text--primary">Descripción</div>
@@ -80,9 +68,6 @@
                     </v-row>
                     <v-card-actions>
                         <v-layout row class="ma-0">
-                            <v-btn @click="dialog=true;selectedTemplateInstance=template" v-if="template.iniciada=='0'&&template.estado=='0'" text icon color="light-green accent-3">
-                                <v-icon>mdi-play</v-icon>
-                            </v-btn>
                             <v-progress-circular
                                 v-if="template.iniciada=='1'&&template.estado=='0'"
                                 indeterminate
@@ -172,6 +157,9 @@ export default {
     },
     created(){
         this.initializeAll();
+    },
+    mounted(){
+        
     }
 }
 </script>

@@ -14,32 +14,36 @@
             <v-dialog
             scrollable
             v-model="dialog"
-            max-width="450"
+            max-width="350"
             :persistent="true"
             >
                 <v-card :loading="loaderCard" class="hola">
                     <v-card-title class="headline">Inicio de proceso</v-card-title>
                     <v-card-text>
-                        <div class="title text--primary">Información de proceso</div>
+                        <div class="title text--secondary">Información de proceso</div>
                         <v-row class="pa-1"></v-row>
-                        <v-row>
-                            <v-col>
-                                <div class="subtitle-1 text--primary">Nombre proceso</div>
-                                {{selectedTemplateInstance.nombre}}
-                            </v-col>
-                            <v-col>
-                                <div class="subtitle-1 text--primary">Descripción</div>
-                                {{selectedTemplateInstance.descripcion}}
-                            </v-col>
-                        </v-row>
+                        <v-list-item>
+                            <v-list-item-content>
+                                <v-list-item-title>Nombre proceso</v-list-item-title>
+                                <v-spacer/>
+                                <v-list-item-subtitle>{{selectedTemplateInstance.nombre}}</v-list-item-subtitle>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <v-list-item>
+                            <v-list-item-content>
+                                <v-list-item-title>Descripción</v-list-item-title>
+                                <v-spacer/>
+                                <v-list-item-subtitle>{{selectedTemplateInstance.descripcion}}</v-list-item-subtitle>
+                            </v-list-item-content>
+                        </v-list-item>
                         <v-form
                         ref="processInstanceForm"
                         >
                             <v-divider></v-divider>
-                            <div class="title text--primary">Campos de información</div>
+                            <div class="title text--secondary">Campos de información</div>
                             <v-row class="pa-1"></v-row>
                             <v-list>
-                                <v-list-item 
+                                <v-list-item class="pa-0"
                                 v-for="campo in selectedTemplateInstance.datos"
                                 :key="campo.idInstanciaPlantillaDato"
                                 >
@@ -308,39 +312,41 @@ export default {
             this.deleteDialog=false;
         },
         async startProcess(templateToStart){
-            this.loaderCard="deep-orange"
+            if(this.$refs.processInstanceForm.validate()){
+                this.loaderCard="deep-orange"
 
-            await this.$axios.put(
-                this.$webServicesBaseURL+"Home/InstanciasPlantillas/Edit/"+this.selectedTemplateInstance.idInstanciaPlantilla,
-                templateToStart,
-                { withCredentials: true }
-            ).then(response=>{
-                if(response.status==200){
-                    if(response.data.code==23){
-                        templateToStart.iniciada=response.data.data.iniciada;
-                        templateToStart.datos=response.data.data.datos;
-                        templateToStart.pasos=response.data.data.pasos;
+                await this.$axios.put(
+                    this.$webServicesBaseURL+"Home/InstanciasPlantillas/Edit/"+this.selectedTemplateInstance.idInstanciaPlantilla,
+                    templateToStart,
+                    { withCredentials: true }
+                ).then(response=>{
+                    if(response.status==200){
+                        if(response.data.code==23){
+                            templateToStart.iniciada=response.data.data.iniciada;
+                            templateToStart.datos=response.data.data.datos;
+                            templateToStart.pasos=response.data.data.pasos;
 
-                        this.showSnackbar(templateToStart.nombre,"success",1);
-                    }
-                }
-            }).catch(error=>{
-                if(error.status==404){
-                    if(error.data!=null){
-                        if(error.data.code==20){
-                            this.templatesInstancesData.splice(this.templatesInstancesData.indexOf(templateInstance),1);    
+                            this.showSnackbar(templateToStart.nombre,"success",1);
                         }
-                        this.showSnackbar(error.data.message,"error",1000);
+                    }
+                }).catch(error=>{
+                    if(error.status==404){
+                        if(error.data!=null){
+                            if(error.data.code==20){
+                                this.templatesInstancesData.splice(this.templatesInstancesData.indexOf(templateInstance),1);    
+                            }
+                            this.showSnackbar(error.data.message,"error",1000);
+                        }else{
+                            this.showSnackbar(error,"error",1000);
+                        }
                     }else{
                         this.showSnackbar(error,"error",1000);
                     }
-                }else{
-                    this.showSnackbar(error,"error",1000);
-                }
-            });
+                });
 
-            this.loaderCard=false;
-            this.dialog=false;
+                this.loaderCard=false;
+                this.dialog=false;
+            }
         },
         showSnackbar(text,style,indexAction){
             this.templatesInstancesSnackbar.active=false;

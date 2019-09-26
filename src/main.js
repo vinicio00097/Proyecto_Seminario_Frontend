@@ -1,9 +1,10 @@
-import StartPage from './components/StartPage'
-import UsersPage from './components/UsersPage'
-import TemplatesPage from './components/TemplatesPage'
-import TemplateDetailPage from './components/TemplateDetailPage'
-import MyProcessPage from './components/MyProcessPage'
-import AllProcessPage from './components/AllProcessPage'
+import StartPage from './components/Start/StartPage'
+import UsersPage from './components/Users/UsersPage'
+import TemplatesPage from './components/Templates/TemplatesPage'
+import TemplateDetailPage from './components/Templates/TemplateDetailPage'
+import MyProcessPage from './components/Activities/MyProcessPage'
+import AllProcessPage from './components/Activities/AllProcessPage'
+import ActivitiesPage from './components/Activities/ActivitiesPage'
 import Vue from 'vue'
 import App from './App.vue'
 import vuetify from './plugins/vuetify';
@@ -28,6 +29,7 @@ const router = new VueRouter({
       ]},
       {path: '/Procesos',component: MyProcessPage,name:'Mis procesos'},
       {path: '/ListaProcesos',component: AllProcessPage,name:'Procesos'},
+      {path: '/Actividades',component: ActivitiesPage,name:'Actividades'},
   ],
 })
 
@@ -40,5 +42,10 @@ new Vue({
     this.$vuetify.theme.dark=true;
     Vue.prototype.$webServicesBaseURL="https://localhost:44354/";
     Vue.prototype.$axios=axios;
+    Vue.prototype.$drawerState=false;
+    Vue.prototype.$app_bar_actions=[
+      { index: 1,title:"Ajustes"},
+      { index: 2,title:"Acerca de..."}
+    ]
   },
 }).$mount('#app')

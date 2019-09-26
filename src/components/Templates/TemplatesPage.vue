@@ -1,5 +1,39 @@
 <template>
     <v-app>
+        <v-app-bar 
+        app
+        flat
+        color="deep-orange"
+        >
+            <v-app-bar-nav-icon @click="$emit('openClose')"></v-app-bar-nav-icon>
+            <v-toolbar-title class="headline">
+                <span>{{this.$route.matched[0].name}}</span>
+            </v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-btn icon >
+                <v-icon>search</v-icon>
+            </v-btn>
+            <v-menu
+                origin="center center"
+                transition="scale-transition"
+            >
+                <template v-slot:activator="{ on }">
+                <v-btn icon v-on="on">
+                    <v-icon>mdi-dots-vertical</v-icon>
+                </v-btn>
+                </template>
+
+                <v-list>
+                <v-list-item
+                    v-for="action in $app_bar_actions"
+                    :key="action.index"
+                    @click="() => {}"
+                >
+                    <v-list-item-title>{{ action.title }}</v-list-item-title>
+                </v-list-item>
+                </v-list>
+            </v-menu>
+        </v-app-bar>
         <v-row v-if="!isLoaded" align="center">
             <v-col align="center">
                 <v-progress-circular
@@ -369,6 +403,9 @@
                     <v-card-text v-if="actionDialog=='createProcess'">
                         Desea crear un proceso de la plantilla "{{selectedTemplate.nombre}}"?
                     </v-card-text>
+                    <v-card-text v-if="actionDialog=='createStartProcess'">
+                        Desea crear e inciar un proceso de la plantilla "{{selectedTemplate.nombre}}"?
+                    </v-card-text>
                     <v-card-text v-if="actionDialog=='deleteTemplate'">
                         Desea eliminar la plantilla "{{selectedTemplate.nombre}}"?
                     </v-card-text>
@@ -383,9 +420,14 @@
                     </v-btn>
 
                     <v-btn
-                        v-if="actionDialog=='createProcess'"
+                        v-if="actionDialog=='createProcess'||actionDialog=='createStartProcess'"
                         text
-                        @click="crear_proceso(selectedTemplate)"
+                        @click="()=>{
+                            actionDialog=='createProcess'?
+                                crear_proceso(selectedTemplate):
+                                fieldsProcessDialog=true;
+                                dialog=false;
+                        }"
                     >
                         Si
                     </v-btn>
@@ -397,6 +439,110 @@
                         Si
                     </v-btn>
                     </v-card-actions>
+                </v-card>
+            </v-dialog>
+            <v-dialog
+            scrollable
+            v-model="fieldsProcessDialog"
+            max-width="350"
+            :persistent="true"
+            >
+                <v-card :loading="loaderCard">
+                    <v-card-title class="headline">Inicio de proceso</v-card-title>
+                    <v-card-text>
+                        <div class="title text--secondary">Información de proceso</div>
+                        <v-row class="pa-1"></v-row>
+                        <v-list-item>
+                            <v-list-item-content>
+                                <v-list-item-title>Nombre proceso</v-list-item-title>
+                                <v-spacer/>
+                                <v-list-item-subtitle>{{selectedTemplate.nombre}}</v-list-item-subtitle>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <v-list-item>
+                            <v-list-item-content>
+                                <v-list-item-title>Descripción</v-list-item-title>
+                                <v-spacer/>
+                                <v-list-item-subtitle>{{selectedTemplate.descripcion}}</v-list-item-subtitle>
+                            </v-list-item-content>
+                        </v-list-item>
+                        <v-form
+                        ref="processInstanceForm"
+                        >
+                            <v-divider></v-divider>
+                            <div class="title text--secondary">Campos de información</div>
+                            <v-row class="pa-1"></v-row>
+                            <v-list>
+                                <v-list-item class="pa-0"
+                                v-for="campo in selectedTemplate.campos"
+                                :key="campo.idPlantillaDato"
+                                >
+                                    <v-text-field
+                                        v-if="campo.tipoDato==1"
+                                        type="text"
+                                        outlined
+                                        color="deep-orange"
+                                        :counter="50"
+                                        :label="campo.nombreCampo"
+                                        v-model="campo.datoString"
+                                        autocomplete="off"
+                                        required
+                                    ></v-text-field>
+                                    <v-text-field
+                                        v-if="campo.tipoDato==2"
+                                        type="number"
+                                        outlined
+                                        color="deep-orange"
+                                        :counter="50"
+                                        :label="campo.nombreCampo"
+                                        v-model="campo.datoInteger"
+                                        autocomplete="off"
+                                        required
+                                    ></v-text-field>
+                                    <v-dialog
+                                        v-if="campo.tipoDato==3"
+                                        ref="inputDateDialog"
+                                        v-model="inputDateDialog"
+                                        :return-value.sync="campo.datoDate"
+                                        persistent
+                                        full-width
+                                        width="290px"
+                                    >
+                                        <template v-slot:activator="{ on }">
+                                        <v-text-field
+                                            solo
+                                            v-model="campo.datoDate"
+                                            :label="campo.nombreCampo"
+                                            readonly
+                                            v-on="on"
+                                        ></v-text-field>
+                                        </template>
+                                        <v-date-picker v-model="campo.datoDate" color="dark"> 
+                                        <div class="flex-grow-1"></div>
+                                        <v-btn text @click="inputDateDialog = false">Cancel</v-btn>
+                                        <v-btn text @click="()=>{
+                                                $refs.inputDateDialog[0].save(campo.datoDate)
+                                            }">OK</v-btn>
+                                        </v-date-picker>
+                                    </v-dialog>
+                                </v-list-item>
+                            </v-list>
+                        </v-form>
+                    </v-card-text>
+                    <v-card-actions>
+                        <div class="flex-grow-1"></div>
+
+                        <v-btn
+                            text
+                            @click="fieldsProcessDialog = false"
+                        >
+                            Cancelar
+                        </v-btn>
+
+                        <v-btn text @click="doCreateStartProcess(selectedTemplate)">
+                            Crear e iniciar
+                        </v-btn>
+                    </v-card-actions>  
                 </v-card>
             </v-dialog>
             <v-col 
@@ -451,29 +597,28 @@
                     </v-list-item>
                     <v-card-actions>
                         <v-layout row class="ma-0">
-                        <!--<v-btn color="deep-orange" @click="dialog=true;selectedTemplate=template;actionDialog='createProcess'" rounded>Crear</v-btn>-->
-                            <v-menu
-                            origin="center center"
-                            transition="fade-transition"
-                            offset-x
-                            offset-y
-                            >
-                                <template v-slot:activator="{ on }">
-                                    <v-btn icon v-on="on">
-                                    <v-icon>more_horiz</v-icon>
-                                    </v-btn>
-                                </template>
+                        <v-menu
+                        origin="center center"
+                        transition="fade-transition"
+                        offset-x
+                        offset-y
+                        >
+                            <template v-slot:activator="{ on }">
+                                <v-btn icon v-on="on">
+                                <v-icon>more_horiz</v-icon>
+                                </v-btn>
+                            </template>
 
-                                <v-list>
-                                    <v-list-item @click="dialog=true;selectedTemplate=template;actionDialog='createProcess'">
-                                        <v-list-item-title>Crear</v-list-item-title>
-                                    </v-list-item>
-                                    <v-list-item @click="() => {}">
-                                        <v-list-item-title>Crear e iniciar</v-list-item-title>
-                                    </v-list-item>
-                                </v-list>
-                            </v-menu>
-                            <v-divider vertical class="mx-1 transparent"></v-divider>
+                            <v-list>
+                                <v-list-item @click="createProcessDialog(template)">
+                                    <v-list-item-title>Crear</v-list-item-title>
+                                </v-list-item>
+                                <v-list-item @click="createStartProcessDialog(template)">
+                                    <v-list-item-title>Crear e iniciar</v-list-item-title>
+                                </v-list-item>
+                            </v-list>
+                        </v-menu>
+                        <v-divider vertical class="mx-1 transparent"></v-divider>
                         <v-btn icon @click="goDetails(template,'edit')">
                             <v-icon>edit</v-icon>
                         </v-btn>
@@ -535,9 +680,11 @@ export default {
             text:String
         },
         isLoaded:false,
+        inputDateDialog:false,
         loaderCard: null,
         dialog:false,
         actionDialog:"",
+        fieldsProcessDialog:false,
         newTemplateDialog:false,
         newFieldDialog:false,
         newFieldDialogAction:"",
@@ -545,7 +692,6 @@ export default {
         newStepDialog:false,
         newStepDialogAction:"",
         selectedStep:Object,
-        testDialogComponent:false,
         selectedTemplate:Object,
         newTemplate:{
             nombre:"",
@@ -593,7 +739,7 @@ export default {
         async crear_proceso(plantilla){
             this.loaderCard="deep-orange"
 
-            await this.$axios.post(
+            var procesoCreado=await this.$axios.post(
                 this.$webServicesBaseURL+"Home/InstanciasPlantillas",
                 plantilla,
                 { withCredentials: true }
@@ -601,6 +747,7 @@ export default {
                 if(response.status==200){
                     if(response.data.code==22){
                         this.showSnackbar(plantilla.nombre,"success",1000);
+                        return response.data.data;
                     }
                 }
             }).catch(error=>{
@@ -620,6 +767,50 @@ export default {
 
             this.loaderCard=false;
             this.dialog=false;
+            return procesoCreado;
+        },
+        async startProcess(templateToStart){
+            if(this.$refs.processInstanceForm.validate()){
+                this.loaderCard="deep-orange"
+
+                await this.$axios.put(
+                    this.$webServicesBaseURL+"Home/InstanciasPlantillas/Edit/"+templateToStart.idInstanciaPlantilla,
+                    templateToStart,
+                    { withCredentials: true }
+                ).then(response=>{
+                    if(response.status==200){
+                        if(response.data.code==23){
+                            this.showSnackbar(templateToStart.nombre,"success",4);
+                        }
+                    }
+                }).catch(error=>{
+                    if(error.status==404){
+                        if(error.data!=null){
+                            this.showSnackbar(error.data.message,"error",1000);
+                        }else{
+                            this.showSnackbar(error,"error",1000);
+                        }
+                    }else{
+                        this.showSnackbar(error,"error",1000);
+                    }
+                });
+
+                this.loaderCard=false;
+                this.fieldsProcessDialog=false;
+            }
+        },
+        async doCreateStartProcess(template){
+            var procesoRetornado=await this.crear_proceso(template);
+
+            console.log(procesoRetornado);
+
+            for(var iteradorDatos=0;iteradorDatos<procesoRetornado.datos.length;iteradorDatos++){
+                procesoRetornado.datos[iteradorDatos].datoDate=template.campos[iteradorDatos].datoDate;
+                procesoRetornado.datos[iteradorDatos].datoInteger=template.campos[iteradorDatos].datoInteger;
+                procesoRetornado.datos[iteradorDatos].datoString=template.campos[iteradorDatos].datoString;
+            }
+
+            await this.startProcess(procesoRetornado);
         },
         async loadTemplates(){
             await this.$axios.get(
@@ -632,6 +823,16 @@ export default {
                         }
                     }
             });
+        },
+        createProcessDialog(template){
+            this.dialog=true;
+            this.selectedTemplate=template;
+            this.actionDialog='createProcess';
+        },
+        createStartProcessDialog(template){
+            this.dialog=true;
+            this.selectedTemplate=template;
+            this.actionDialog='createStartProcess';
         },
         updateModifiedTemplate(newTemplate){
             if(newTemplate!=null){
@@ -853,6 +1054,9 @@ export default {
                 }break;
                 case 3:{
                     this.templatesSnackbar.text="Plantilla \""+text+"\" actualizada.";
+                }break;
+                case 4:{
+                    this.templatesSnackbar.text="Proceso \""+text+"\" iniciado.";
                 }break;
                 default:{
                     this.templatesSnackbar.text=text;
