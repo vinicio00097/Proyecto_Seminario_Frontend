@@ -57,12 +57,16 @@
       <v-tab-item value="process">
         <AllProcessPage></AllProcessPage>
       </v-tab-item>
+      <v-tab-item value="myTasks">
+        <TasksPage></TasksPage>
+      </v-tab-item>
     </v-tabs-items>
   </v-app>
 </template>
 <script>
 import MyProcessPage from './MyProcessPage'
 import AllProcessPage from './AllProcessPage'
+import TasksPage from './TasksPage'
 export default {
     data:()=>({
       tab1:"myProcess",
@@ -74,7 +78,8 @@ export default {
     }),
     components:{
       MyProcessPage,
-      AllProcessPage
+      AllProcessPage,
+      TasksPage
     }
 }
 </script>
