@@ -441,7 +441,6 @@ export default {
     canSave:false,
     onlyNestedDialogs:true,
     opened:false,
-    snackbar:false,
     isLoaded:false,
     editInfoTemplateDialog:false,
     confirmSaveDialog:false,

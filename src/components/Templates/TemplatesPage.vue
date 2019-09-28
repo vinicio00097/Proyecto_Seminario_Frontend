@@ -634,6 +634,7 @@
         <v-fab-transition>
             <v-btn
             color="deep-orange"
+            v-show="isLoaded"
             dark
             fixed
             large

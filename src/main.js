@@ -6,6 +6,7 @@ import MyProcessPage from './components/Activities/MyProcessPage'
 import AllProcessPage from './components/Activities/AllProcessPage'
 import ActivitiesPage from './components/Activities/ActivitiesPage'
 import TasksPage from './components/Activities/TasksPage'
+import ProcessStatusPage from './components/Activities/ProcessStatusPage'
 import Vue from 'vue'
 import App from './App.vue'
 import vuetify from './plugins/vuetify';
@@ -29,7 +30,9 @@ const router = new VueRouter({
         {path: 'Detalle/:idPlantilla',component: TemplateDetailPage,name:'Plantilla'}
       ]},
       {path: '/Actividades',component: ActivitiesPage,name:'Actividades'},
-      {path: '/Procesos',component: MyProcessPage,name:'Mis procesos'},
+      {path: '/Procesos',component: MyProcessPage,name:'Mis procesos',children:[
+        {path: 'Detalle/:idInstanciaPlantilla',component: ProcessStatusPage,name:'Proceso'},  
+      ]},
       {path: '/ListaProcesos',component: AllProcessPage,name:'Procesos'},
       {path: '/Tareas',component: TasksPage,name:'Mis tareas'},
   ],

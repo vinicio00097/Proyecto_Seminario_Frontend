@@ -196,7 +196,7 @@
                                 <v-progress-circular
                                 :size="100"
                                 :width="10"
-                                :value="0"
+                                :value="getPorcentageComplete(template.pasos)"
                                 color="white"
                                 >
                                 0%
@@ -227,7 +227,7 @@
                                 size="20"
                             ></v-progress-circular>
                             <v-divider vertical class="mx-1 transparent"></v-divider>
-                        <v-btn icon>
+                        <v-btn icon @click="goDetails(template)">
                             <v-icon>visibility</v-icon>
                         </v-btn>
                         </v-layout>
@@ -235,6 +235,7 @@
                 </v-card>
             </v-col>
         </v-row>
+        <router-view />
         <v-snackbar
         :color="templatesInstancesSnackbar.style"
         v-model="templatesInstancesSnackbar.active"
@@ -370,6 +371,15 @@ export default {
 
             this.templatesInstancesSnackbar.active=true;
             this.templatesInstancesSnackbar.style=style;
+        },
+        goDetails(process){
+            console.log(process);
+            this.$router.push({ name:'Proceso', params: { idInstanciaPlantilla: process.idInstanciaPlantilla } });
+        },
+        getPorcentageComplete(pasos){
+            var pasosCompletos=pasos.filter(item=>item.estado==1).length;
+            
+            return pasosCompletos==0?0:100/pasosCompletos;
         },
         closeInputDateDialog(date){
             this.$refs.inputDateDialog[0].save(date)

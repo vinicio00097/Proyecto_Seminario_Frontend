@@ -223,7 +223,7 @@
             bottom
             right
             fab
-            v-on="on"
+            v-show="isLoaded"
             @click="cardActionActivation('add')"
             >
                 <v-icon>add</v-icon>    

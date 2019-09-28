@@ -194,7 +194,7 @@ export default {
         {title: 'Procesos',icon:'settings',link:'/ListaProcesos'}
       ]}
     ],*/
-    globalWidth:0,
+    globalWidth:window.innerWidth,
     isOpen:true,
     isActive:true,
     dialog:false
