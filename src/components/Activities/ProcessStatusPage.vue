@@ -120,7 +120,7 @@
                                 <v-list-item-icon>
                                     <v-btn icon>
                                         <v-icon>
-                                            people
+                                            receipt
                                         </v-icon>
                                     </v-btn>
                                 </v-list-item-icon>
