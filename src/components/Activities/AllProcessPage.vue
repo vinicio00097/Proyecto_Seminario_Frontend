@@ -55,33 +55,35 @@
                                 <v-progress-circular
                                 :size="100"
                                 :width="10"
-                                :value="0"
+                                :value="getPorcentageComplete(template)"
                                 color="white"
                                 >
-                                0%
+                                {{template.porcentageValue}}%
                                 </v-progress-circular>
                             </div>
                             <v-card-text class="pa-0 ma-0">
-                                0/{{template.pasos.length}}
+                                {{template.pasos.filter(item=>item.estado==1).length}}/{{template.pasos.length}}
                             </v-card-text>
                         </div>
                     </v-row>
                     <v-card-actions>
-                        <v-layout row class="ma-0">
+                        <v-layout row class="ma-0" align-center>
                             <v-progress-circular
                                 v-if="template.iniciada=='1'&&template.estado=='0'"
                                 indeterminate
                                 color="light-green accent-3"
-                                size="35"
+                                width="3"
+                                size="20"
                             ></v-progress-circular>
                             <v-progress-circular
                                 v-if="template.iniciada=='1'&&template.estado=='1'"
                                 value="100"
                                 color="light-green accent-3"
-                                size="35"
+                                width="3"
+                                size="20"
                             ></v-progress-circular>
                             <v-divider vertical class="mx-1 transparent"></v-divider>
-                        <v-btn icon>
+                        <v-btn icon @click="goDetails(template)">
                             <v-icon>visibility</v-icon>
                         </v-btn>
                         </v-layout>
@@ -89,6 +91,7 @@
                 </v-card>
             </v-col>
         </v-row>
+        <router-view />
         <v-snackbar
         :color="templatesInstancesSnackbar.style"
         v-model="templatesInstancesSnackbar.active"
@@ -149,6 +152,16 @@ export default {
 
             this.templatesInstancesSnackbar.active=true;
             this.templatesInstancesSnackbar.style=style;
+        },
+        goDetails(process){
+            console.log(process);
+            this.$router.push({ name:'Proceso', params: { idInstanciaPlantilla: process.idInstanciaPlantilla } });
+        },
+        getPorcentageComplete(template){
+            var pasosCompletos=template.pasos.filter(item=>item.estado==1).length;
+            template.porcentageValue=pasosCompletos==0?0:100/pasosCompletos;
+            
+            return template.porcentageValue;
         },
         async initializeAll(){
             await this.loadTemplatesIntances();

@@ -38,22 +38,29 @@
                     <div class="pl-4"/>
                 </div>
             </v-row>
-            <v-row class="pa-6"/>
+            <v-row class="pa-3"/>
+            <v-divider class="mx-4"/>
+            <v-row class="pa-3"/>
             <v-row justify="center" class="headline text--secondary">Detalles y estado del proceso</v-row>
             <v-row class="pa-1"/>
             <v-row :justify="localWidth>=960?'center':'left'" class="pl-2 pr-2 pt-2">
-                <v-card>
+            <DatosDialog v-model="showDatosDialog" v-bind:arrayDatos="processData.datos"></DatosDialog>
+                <v-card max-width="300">
                     <v-card-title>{{processData.nombre}}</v-card-title>
+                    <v-card-text class="pb-0 pt-4">
+                        <div class="subtitle-1 text--primary">Descripción</div>
+                        {{processData.descripcion}}
+                    </v-card-text>
                     <v-list-item>
                         <v-list-item-icon>
-                            <v-btn icon>
+                            <v-btn icon @click="showDatosDialog=true;">
                                 <v-icon>
                                     list
                                 </v-icon>
                             </v-btn>
                         </v-list-item-icon>
                         <v-list-item-content>
-                            <v-list-item-title>Cant. campos de info.</v-list-item-title>
+                            <v-list-item-title>Cantidad de datos</v-list-item-title>
                             <v-list-item-subtitle>{{processData.datos.length}}</v-list-item-subtitle>
                         </v-list-item-content>
                     </v-list-item>
@@ -61,13 +68,13 @@
                         <v-list-item-icon>
                             <v-btn icon>
                                 <v-icon>
-                                    check
+                                    linear_scale
                                 </v-icon>
                             </v-btn>
                         </v-list-item-icon>
                         <v-list-item-content>
                             <v-list-item-title>Pasos aprobados</v-list-item-title>
-                            <v-list-item-subtitle>{{processData.pasos.filter(item=>item.estado==1).length}}</v-list-item-subtitle>
+                            <v-list-item-subtitle>{{processData.pasos.filter(item=>item.estado==1).length}}/{{processData.pasos.length}}</v-list-item-subtitle>
                         </v-list-item-content>
                     </v-list-item>
                     <v-row class="pa-0 ma-0" justify="end">
@@ -89,6 +96,7 @@
                     </v-row>
                 </v-card>
             </v-row>
+            <ParticipantsDialog v-model="showParticipantsDialog" v-bind:step="selectedStep" from="paso"></ParticipantsDialog>
             <v-timeline :dense="$vuetify.breakpoint.smAndDown">
                 <v-timeline-item
                 v-for="(step,index) in processData.pasos"
@@ -99,7 +107,7 @@
                 :left="index%2==1"
                 >
                 <template v-slot:icon>
-                    <v-icon v-if="step.estado==null">info</v-icon>
+                    <v-icon v-if="step.estado==null&&step.usuarioAccion==null">info</v-icon>
                     <v-icon v-if="step.estado==null&&step.usuarioAccion!=null">brightness_1</v-icon>
                     <v-icon v-if="step.estado==1&&step.usuarioAccion!=null">check</v-icon>
                     <v-icon v-if="step.estado==21&&step.usuarioAccion!=null">warning</v-icon>
@@ -112,11 +120,11 @@
                     </v-card-title>
                     <v-row class="pa-1"/>
                     <v-row class="pl-3 pr-3 ma-0" v-if="step.fechaInicio!=null">
-                        <div class="body-2 text--secondary">12 dic 2019 inicio</div>
+                        <div class="body-2 text--secondary">{{getDatetimeParsed(step.fechaInicio)}} inicio</div>
                     </v-row>
                     <v-row>
                         <v-col class="pa-0">
-                            <v-list-item v-if="step.fechaInicio==null">
+                            <v-list-item >
                                 <v-list-item-icon>
                                     <v-btn icon>
                                         <v-icon>
@@ -131,9 +139,9 @@
                             </v-list-item>
                         </v-col>
                         <v-col class="pa-0">
-                            <v-list-item v-if="step.fechaInicio==null">
+                            <v-list-item>
                                 <v-list-item-icon>
-                                    <v-btn icon>
+                                    <v-btn icon @click="showParticipantsDialog=true;selectedStep=step;">
                                         <v-icon>
                                             people
                                         </v-icon>
@@ -148,47 +156,21 @@
                     </v-row>
                     <v-row class="pl-3 pr-3 ma-0" v-if="step.fechaFin!=null">
                         <v-spacer/>
-                        <div class="body-2 text--secondary">20 dic 2019 fin</div>
+                        <div class="body-2 text--secondary">{{getDatetimeParsed(step.fechaFin)}} fin</div>
                     </v-row>
-                    <!--<v-list-item v-if="step.fechaInicio==null">
-                        <v-list-item-icon>
-                            <v-btn icon>
-                                <v-icon>
-                                    date_range
-                                </v-icon>
-                            </v-btn>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                            <v-list-item-title>Fecha de inicio</v-list-item-title>
-                            <v-list-item-subtitle>{{step.fechaInicio}}</v-list-item-subtitle>
-                        </v-list-item-content>
-                    </v-list-item>
-                    <v-list-item v-if="step.fechaInicio==null">
-                        <v-list-item-icon>
-                            <v-btn icon>
-                                <v-icon>
-                                    date_range
-                                </v-icon>
-                            </v-btn>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                            <v-list-item-title>Fecha de finalizacion</v-list-item-title>
-                            <v-list-item-subtitle>{{step.fechaFin}}</v-list-item-subtitle>
-                        </v-list-item-content>
-                    </v-list-item>-->
                 </v-card>
                 </v-timeline-item>
             </v-timeline>
           </div>
           <v-snackbar
-          :color="templateSnackbar.style"
-          v-model="templateSnackbar.active"
-          :timeout="templateSnackbar.timeout"
+          :color="processSnackbar.style"
+          v-model="processSnackbar.active"
+          :timeout="processSnackbar.timeout"
           >
-          {{ templateSnackbar.text }}
+          {{ processSnackbar.text }}
               <v-btn
               text
-              @click="templateSnackbar.active = false"
+              @click="processSnackbar.active = false"
               >
               Cerrar
               </v-btn>
@@ -198,6 +180,8 @@
     </v-dialog>
 </template>
 <script>
+import DatosDialog from './DatosDialog'
+import ParticipantsDialog from './ParticipantsDialog'
 export default {
     data:()=>({
         colorsArray:[
@@ -212,25 +196,32 @@ export default {
             "teal lighten-1"
         ],
         statusIcons:[
-            {icon:"info",text:"Pendiente de aceptar/iniciar"},
+            {icon:"info",text:"Pendiente de iniciar"},
             {icon:"brightness_1",text:"En curso"},
             {icon:"check",text:"Aprobado/terminado"},
-            {icon:"block",text:"Rechazado"},
+            {icon:"warning",text:"Rechazado"},
             {icon:"keyboard_return",text:"Regresado"},
             {icon:"swap_horiz",text:"Redireccionado"},
         ],
+        showDatosDialog:false,
+        showParticipantsDialog:false,
+        selectedStep:Object,
         processData:Object,
         localWidth:window.innerWidth,
         opened:false,
         isLoaded:false,
         onlyNestedDialogs:true,
-        templateSnackbar:{
+        processSnackbar:{
             style:String,
             active:false,
             timeout:6000,
             text:String,
         },
     }),
+    components:{
+        DatosDialog,
+        ParticipantsDialog
+    },
     methods:{
         async loadProcess(){
             await this.$axios.get(
@@ -244,11 +235,15 @@ export default {
                     }
                 }
             }).catch(error=>{
-                if(error.status==404){
-                    if(error.data!=null){
-                        this.showSnackbar(error.data.message,"error",1000);
+                if(error.response!=null){
+                    if(error.response.status==404){
+                        if(error.response.data!=null){
+                            this.showSnackbar(error.response.data.message,"error",1000);
+                        }else{
+                            this.showSnackbar(error,"error",1000);
+                        }
                     }else{
-                        this.showSnackbar(error,"error",1000);
+                        this.showSnackbar(error,"error",1000)
                     }
                 }else{
                     this.showSnackbar(error,"error",1000);
@@ -266,6 +261,34 @@ export default {
                 this.$emit('close');
                 this.$router.go(-1);
             }
+        },
+        showSnackbar(text,style,indexAction){
+            this.processSnackbar.active=false;
+            
+            switch(indexAction){
+                case 1:{
+                    this.processSnackbar.text="Proceso \""+text+"\" iniciado.";
+                }break;
+                case 2:{
+                    this.processSnackbar.text="Proceso \""+text+"\" eliminado.";
+                }break;
+                /*case 3:{
+                    this.templatesSnackbar.text="Proceso \""+text+"\" actualizada.";
+                }break;*/
+                default:{
+                    this.processSnackbar.text=text;
+                }break;
+            }
+
+            this.processSnackbar.active=true;
+            this.processSnackbar.style=style;
+        },
+        getDatetimeParsed(date){
+            var readableDatetime=new Date(date);
+            
+            return readableDatetime.getDate()+" "+
+            readableDatetime.toLocaleString('default', { month: 'long' }).substring(0,3)+" "+
+            readableDatetime.getUTCFullYear()+" "+date.split("T")[1];
         },
         async initializeAll(){
             await this.loadProcess();

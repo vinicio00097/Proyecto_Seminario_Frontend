@@ -312,6 +312,8 @@
                 Agregar
               </v-btn>
             </v-row>
+            <ParticipantsDialog v-model="showParticipantsDialog" v-bind:step="selectedStep" from="paso"></ParticipantsDialog>
+            <FieldsDialog v-model="showFieldsDialog" v-bind:step="selectedStep"></FieldsDialog>
             <div class="scrolling-wrapper">
                 <div class="card"
                   v-for="paso in templateData.pasos"
@@ -342,7 +344,10 @@
                         </v-card-text>
                         <v-list-item>
                             <v-list-item-icon>
-                                <v-btn icon>
+                                <v-btn icon @click="()=>{
+                                    showParticipantsDialog=true;
+                                    selectedStep=paso;
+                                  }">
                                     <v-icon>people</v-icon>
                                 </v-btn>
                             </v-list-item-icon>
@@ -353,7 +358,10 @@
                         </v-list-item>
                         <v-list-item>
                             <v-list-item-icon>
-                                <v-btn icon>
+                                <v-btn icon @click="()=>{
+                                    showFieldsDialog=true;
+                                    selectedStep=paso;
+                                  }">
                                     <v-icon>list</v-icon>
                                 </v-btn>
                             </v-list-item-icon>
@@ -426,7 +434,8 @@
     </v-dialog>
 </template>
 <script>
-
+import ParticipantsDialog from '../Activities/ParticipantsDialog'
+import FieldsDialog from '../Activities/FieldsDialog'
 export default {
   props: ['readOnly'],
   data: ()=>({
@@ -435,6 +444,8 @@ export default {
       {idTipoDato:2,nombre:"Numérico"},
       {idTipoDato:3,nombre:"Fecha"}
     ],
+    showParticipantsDialog:false,
+    showFieldsDialog:false,
     usersData:[],
     sheet:false,
     templateData:Object,
@@ -494,6 +505,10 @@ export default {
       text:String,
     },
   }),
+  components:{
+    ParticipantsDialog,
+    FieldsDialog
+  },
   methods:{
     closeActivity(){
       this.opened=false;
@@ -525,14 +540,16 @@ export default {
             }
         }
       }).catch(error=>{
-        if(error.status==404){
-            if(error.data!=null){
-                this.showSnackbar(error.data.message,"error",1000);
-            }else{
-                this.showSnackbar(error,"error",1000);
-            }
-        }else{
-            this.showSnackbar(error,"error",1000);
+        if(error.response!=null){
+          if(error.response.status==404){
+              if(error.response.data!=null){
+                  this.showSnackbar(error.response.data.message,"error",1000);
+              }else{
+                  this.showSnackbar(error,"error",1000);
+              }
+          }else{
+              this.showSnackbar(error,"error",1000);
+          }
         }
       });
     },
@@ -715,32 +732,44 @@ export default {
           }
         }
       }).catch(error=>{
-
+        if(error.response!=null){
+            if(error.response.status==404){
+                if(error.response.data!=null){
+                    this.showSnackbar(error.response.data.message,"error",1000);
+                }else{
+                    this.showSnackbar(error,"error",1000);
+                }
+            }else{
+                this.showSnackbar(error,"error",1000);
+            }
+        }else{
+            this.showSnackbar(error,"error",1000);
+        }
       });
 
       this.confirmSaveDialogLoader=false;
       this.confirmSaveDialog=false;
     },
     showSnackbar(text,style,indexAction){
-      this.templatesSnackbar.active=false;
+      this.templateSnackbar.active=false;
       
       switch(indexAction){
           case 1:{
-              this.templatesSnackbar.text="Plantilla \""+text+"\" agregada.";
+              this.templateSnackbar.text="Plantilla \""+text+"\" agregada.";
           }break;
           case 2:{
-              this.templatesSnackbar.text="Plantilla \""+text+"\" eliminada.";
+              this.templateSnackbar.text="Plantilla \""+text+"\" eliminada.";
           }break;
           case 3:{
-              this.templatesSnackbar.text="Plantilla \""+text+"\" actualizada.";
+              this.templateSnackbar.text="Plantilla \""+text+"\" actualizada.";
           }break;
           default:{
-              this.templatesSnackbar.text=text;
+              this.templateSnackbar.text=text;
           }break;
       }
 
-      this.templatesSnackbar.active=true;
-      this.templatesSnackbar.style=style;
+      this.templateSnackbar.active=true;
+      this.templateSnackbar.style=style;
     },
     async initializeAll(){
       await this.loadUsers();

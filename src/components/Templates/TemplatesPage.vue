@@ -752,17 +752,19 @@ export default {
                     }
                 }
             }).catch(error=>{
-                if(error.status==404){
-                    if(error.data!=null){
-                        if(error.data.code==20){
-                            this.templatesData.splice(this.templatesData.indexOf(plantilla),1);    
+                if(error.response!=null){
+                    if(error.response.status==404){
+                        if(error.response.data!=null){
+                            if(error.response.data.code==20){
+                                this.templatesData.splice(this.templatesData.indexOf(plantilla),1);    
+                            }
+                            this.showSnackbar(error.response.data.message,"error",1000);
+                        }else{
+                            this.showSnackbar(error,"error",1000);
                         }
-                        this.showSnackbar(error.data.message,"error",1000);
                     }else{
                         this.showSnackbar(error,"error",1000);
                     }
-                }else{
-                    this.showSnackbar(error,"error",1000);
                 }
             });
 
@@ -785,9 +787,13 @@ export default {
                         }
                     }
                 }).catch(error=>{
-                    if(error.status==404){
-                        if(error.data!=null){
-                            this.showSnackbar(error.data.message,"error",1000);
+                    if(error.response!=null){
+                        if(error.response.status==404){
+                            if(error.response.data!=null){
+                                this.showSnackbar(error.response.data.message,"error",1000);
+                            }else{
+                                this.showSnackbar(error,"error",1000);
+                            }
                         }else{
                             this.showSnackbar(error,"error",1000);
                         }
@@ -981,9 +987,13 @@ export default {
                         }
                     }
                 }).catch(error=>{
-                    if(error.status==404){
-                        if(error.data!=null){
-                            this.showSnackbar(error.data.message,"error",1000);
+                    if(error.response!=null){
+                        if(error.response.status==404){
+                            if(error.response.data!=null){
+                                this.showSnackbar(error.response.data.message,"error",1000);
+                            }else{
+                                this.showSnackbar(error,"error",1000);
+                            }
                         }else{
                             this.showSnackbar(error,"error",1000);
                         }
@@ -1011,12 +1021,16 @@ export default {
                     }
                 }
             }).catch(error=>{
-                if(error.status==404){
-                    if(error.data!=null){
-                        if(error.data.code==10){
-                            this.templatesData.splice(this.templatesData.indexOf(template),1);    
+                if(error.response!=null){
+                    if(error.response.status==404){
+                        if(error.response.data!=null){
+                            if(error.response.data.code==10){
+                                this.templatesData.splice(this.templatesData.indexOf(template),1);    
+                            }
+                            this.showSnackbar(error.response.data.message,"error",1000);
+                        }else{
+                            this.showSnackbar(error,"error",1000);
                         }
-                        this.showSnackbar(error.data.message,"error",1000);
                     }else{
                         this.showSnackbar(error,"error",1000);
                     }

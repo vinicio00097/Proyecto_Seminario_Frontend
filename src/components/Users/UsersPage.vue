@@ -313,12 +313,16 @@ export default {
                     }
                 }
             }).catch(error=>{
-                if(error.status==404){
-                    if(error.data!=null){
-                        if(error.data.code==30){
-                            this.usersData.splice(this.usersData.indexOf(this.selectedUser),1);    
+                if(error.response!=null){
+                    if(error.response.status==404){
+                        if(error.response.data!=null){
+                            if(error.response.data.code==30){
+                                this.usersData.splice(this.usersData.indexOf(this.selectedUser),1);    
+                            }
+                            this.showSnackbar(error.response.data.message,"error",1000);
+                        }else{
+                            this.showSnackbar(error,"error",1000);
                         }
-                        this.showSnackbar(error.data.message,"error",1000);
                     }else{
                         this.showSnackbar(error,"error",1000);
                     }
@@ -357,12 +361,16 @@ export default {
                         }
                     }
                 }).catch(error=>{
-                    if(error.status==404){
-                        if(error.data!=null){
-                            this.showSnackbar(error.data.message,"error",1000);
+                    if(error.response!=null){
+                        if(error.response.status==404){
+                            if(error.response.data!=null){
+                                this.showSnackbar(error.response.data.message,"error",1000);
+                            }else{
+                                this.showSnackbar(error,"error",1000);
+                            }
                         }else{
                             this.showSnackbar(error,"error",1000);
-                        }
+                        }   
                     }else{
                         this.showSnackbar(error,"error",1000);
                     }
@@ -404,12 +412,16 @@ export default {
                         }
                     }
                 }).catch(error=>{
-                    if(error.status==404){
-                        if(error.data!=null){
-                            if(error.data.code==30){
-                                this.usersData.splice(this.usersData.indexOf(this.selectedUser),1);    
+                    if(error.response!=null){
+                        if(error.response.status==404){
+                            if(error.response.data!=null){
+                                if(error.response.data.code==30){
+                                    this.usersData.splice(this.usersData.indexOf(this.selectedUser),1);    
+                                }
+                                this.showSnackbar(error.response.data.message,"error",1000);
+                            }else{
+                                this.showSnackbar(error,"error",1000);
                             }
-                            this.showSnackbar(error.data.message,"error",1000);
                         }else{
                             this.showSnackbar(error,"error",1000);
                         }
