@@ -101,7 +101,7 @@
                 <v-timeline-item
                 v-for="(step,index) in processData.pasos"
                 :key="step.idPlantillaPasoDetalle"
-                :color="step.color=colorsArray[Math.floor(Math.random() * colorsArray.length)]"
+                :color="step.color='light-blue darken-2'/*colorsArray[Math.floor(Math.random() * colorsArray.length)]*/"
                 fill-dot
                 :right="index%2==0"
                 :left="index%2==1"
@@ -116,7 +116,7 @@
                 </template>
                 <v-card>
                     <v-card-title :class="step.color">
-                    <h2 class="display-1 light--text">{{step.nombre}}</h2>
+                    <h3 class="headline light--text">{{step.nombre}}</h3>
                     </v-card-title>
                     <v-row class="pa-1"/>
                     <v-row class="pl-3 pr-3 ma-0" v-if="step.fechaInicio!=null">
@@ -207,7 +207,7 @@ export default {
         showParticipantsDialog:false,
         selectedStep:Object,
         processData:Object,
-        localWidth:window.innerWidth,
+        localWidth:0,
         opened:false,
         isLoaded:false,
         onlyNestedDialogs:true,
@@ -300,6 +300,7 @@ export default {
     },
     mounted(){
         this.opened=true;
+        this.localWidth=window.innerWidth;
 
         window.onresize = () => {
             this.localWidth=window.innerWidth;
