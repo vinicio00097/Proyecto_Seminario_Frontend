@@ -27,7 +27,7 @@
                     <v-card-actions>
                         <v-spacer/>
                         <v-btn text @click="showTakeitDialog=false;">Cancelar</v-btn>
-                        <v-btn text @click="startTask(selectedTask)">Aceptar</v-btn>
+                        <v-btn text @click="startTask(selectedTask)">Iniciar</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
@@ -40,7 +40,66 @@
                     <v-card-actions>
                         <v-spacer/>
                         <v-btn text @click="showApproveDialog=false;">Cancelar</v-btn>
-                        <v-btn text @click="approveTask(selectedTask)">Aceptar</v-btn>
+                        <v-btn text color="green" @click="approveTask(selectedTask)">Aprobar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+            <v-dialog v-model="showRejectDialog" max-width="325">
+                <v-card :loading="loaderCard">
+                    <v-card-title>Confirmación</v-card-title>
+                    <v-card-text>
+                        Desea rechazar la tarea "{{selectedTask.nombre}}" ?
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer/>
+                        <v-btn text @click="showApproveDialog=false;">Cancelar</v-btn>
+                        <v-btn text color="red" @click="rejectTask(selectedTask)">Rechazar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+            <v-dialog v-model="showReturnDialog" max-width="325">
+                <v-card :loading="loaderCard">
+                    <v-card-title>Confirmación</v-card-title>
+                    <v-card-text>
+                        Desea regresar la tarea "{{selectedTask.nombre}}" ?
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer/>
+                        <v-btn text @click="showApproveDialog=false;">Cancelar</v-btn>
+                        <v-btn text color="amber" @click="returnTask(selectedTask)">Regresar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+            <v-dialog v-model="showRedirectDialog" max-width="325">
+                <v-card :loading="loaderCard">
+                    <v-card-title>Confirmación</v-card-title>
+                    <v-card-text>
+                        Desea redireccionar la tarea "{{selectedTask.nombre}}" a otro participante ?
+                        <v-row class="pt-3"/>
+                        <v-form ref="newUserRedirect">
+                            <v-select
+                            color="white"
+                            item-color="orange"
+                            :items="selectedTask.usuarios!=null?
+                            selectedTask.usuarios.filter(item=>item.idUsuario!=session_claims.user_id):[]"
+                            label="Seleccione participante"
+                            item-text="nombres"
+                            item-value="idUsuario"
+                            :rules="[v => !!v || 'Participante es requerido']"
+                            v-model="newUserRedirect"
+                            solo
+                            return-object
+                            >
+                                <template slot='item' slot-scope='{ item }'>
+                                    {{ item.nombres }} {{ item.apellidos }}
+                                </template>
+                            </v-select>
+                        </v-form>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer/>
+                        <v-btn text @click="showApproveDialog=false;">Cancelar</v-btn>
+                        <v-btn text color="blue darken-1" @click="redirectTask(selectedTask)">Redireccionar</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
@@ -56,17 +115,20 @@
                 hover
                 >
                 <v-overlay
+                z-index="4"
                 absolute
-                :value="task.usuarioAccion==null"
+                :value="overlayStartCondition(task)"
                 >
                     <v-btn
-                        color="teal lighten-1"
+                        outlined
+                        color="white"
                         @click="showTakeitDialog=true;selectedTask=task;"
                     >
                         Iniciar
                     </v-btn>
                 </v-overlay>
                 <v-overlay
+                z-index="4"
                 absolute
                 :value="overlayApproveCondition(task)"
                 >
@@ -74,6 +136,17 @@
                         color="green"
                     >
                         Aprobado
+                    </v-btn>
+                </v-overlay>
+                <v-overlay
+                z-index="4"
+                absolute
+                :value="overlayRejectCondition(task)"
+                >
+                    <v-btn
+                        color="red"
+                    >
+                        rechazado
                     </v-btn>
                 </v-overlay>
                 <v-row class="ma-0">
@@ -127,7 +200,10 @@
                             <div class="pl-2"/>
                             <v-tooltip bottom>
                                 <template v-slot:activator="{ on }">
-                                    <v-btn icon v-on="on">
+                                    <v-btn icon v-on="on" @click="()=>{
+                                            showRejectDialog=true;
+                                            selectedTask=task;
+                                        }">
                                         <v-icon>warning</v-icon>
                                     </v-btn>
                                 </template>
@@ -136,7 +212,10 @@
                             <div class="pl-2"/>
                             <v-tooltip bottom>
                                 <template v-slot:activator="{ on }">
-                                    <v-btn icon v-on="on">
+                                    <v-btn icon v-on="on" @click="()=>{
+                                            showReturnDialog=true;
+                                            selectedTask=task;
+                                        }">
                                         <v-icon>
                                             keyboard_return
                                         </v-icon>
@@ -147,7 +226,10 @@
                             <div class="pl-2"/>
                             <v-tooltip bottom v-if="task.usuarios.length>1">
                                 <template v-slot:activator="{ on }">
-                                    <v-btn icon v-on="on">
+                                    <v-btn icon v-on="on" @click="()=>{
+                                            showRedirectDialog=true;
+                                            selectedTask=task;
+                                        }">
                                         <v-icon>
                                             swap_horiz
                                         </v-icon>
@@ -161,14 +243,14 @@
             </v-col>
         </v-row>
         <v-snackbar
-        :color="processSnackbar.style"
-        v-model="processSnackbar.active"
-        :timeout="processSnackbar.timeout"
+        :color="taskSnackbar.style"
+        v-model="taskSnackbar.active"
+        :timeout="taskSnackbar.timeout"
         >
-        {{ processSnackbar.text }}
+        {{ taskSnackbar.text }}
             <v-btn
             text
-            @click="processSnackbar.active = false"
+            @click="taskSnackbar.active = false"
             >
             Cerrar
             </v-btn>
@@ -186,11 +268,15 @@ export default {
         selectedTask:Object,
         showTakeitDialog:false,
         showApproveDialog:false,
+        showRejectDialog:false,
+        showReturnDialog:false,
+        showRedirectDialog:false,
+        newUserRedirect:null,
         confirmOverlay:true,
         tasksData:[],
         isLoaded:false,
         loaderCard:null,
-        processSnackbar:{
+        taskSnackbar:{
             text:String,
             active:false,
             style:String,
@@ -226,6 +312,8 @@ export default {
                     if(response.data.code==43){
                         task.usuarioAccion=response.data.data.usuarioAccion;
                         task.usuarioAccionNavigation=response.data.data.usuarioAccionNavigation;
+
+                        this.showSnackbar(task.nombre,"success",1);
                     }
                 }
             }).catch(error=>{
@@ -260,6 +348,8 @@ export default {
                         console.log(response.data);
                         task.estado=response.data.data.estado;
                         task.estadoNavigation=response.data.data.estadoNavigation;
+
+                        this.showSnackbar(task.nombre,"success",2);
                     }
                 }
             }).catch(error=>{
@@ -281,6 +371,148 @@ export default {
             this.loaderCard=false;
             this.showApproveDialog=false;
         },
+        async rejectTask(task){
+            this.loaderCard="deep-orange";
+
+            await this.$axios.put(
+                this.$webServicesBaseURL+"Home/Tareas/Edit/Reject/"+task.idPlantillaPasoDetalle,
+                task,
+                { withCredentials: true }
+            ).then(response=>{
+                if(response.status==200){
+                    if(response.data.code==43){
+                        console.log(response.data);
+                        task.estado=response.data.data.estado;
+                        task.estadoNavigation=response.data.data.estadoNavigation;
+
+                        this.showSnackbar(task.nombre,"success",3);
+                    }
+                }
+            }).catch(error=>{
+                if(error.response!=null){
+                    if(error.response.status==404){
+                        if(error.response.data!=null){
+                            this.showSnackbar(error.response.data.message,"error",1000);
+                        }else{
+                            this.showSnackbar(error,"error",1000);
+                        }
+                    }else{
+                        this.showSnackbar(error,"error",1000)
+                    }
+                }else{
+                    this.showSnackbar(error,"error",1000);
+                }
+            });
+
+            this.loaderCard=false;
+            this.showRejectDialog=false;
+        },
+        async returnTask(task){
+            this.loaderCard="deep-orange";
+
+            await this.$axios.put(
+                this.$webServicesBaseURL+"Home/Tareas/Edit/Return/"+task.idPlantillaPasoDetalle,
+                task,
+                { withCredentials: true }
+            ).then(response=>{
+                if(response.status==200){
+                    if(response.data.code==43){
+                        console.log(response.data);
+                        task.estado=response.data.data.estado;
+                        task.estadoNavigation=response.data.data.estadoNavigation;
+                        task.usuarioAccion=null;
+                        task.usuarioAccionNavigation=null;
+
+                        this.showSnackbar(task.nombre,"success",4);
+                    }
+                }
+            }).catch(error=>{
+                if(error.response!=null){
+                    if(error.response.status==404){
+                        if(error.response.data!=null){
+                            this.showSnackbar(error.response.data.message,"error",1000);
+                        }else{
+                            this.showSnackbar(error,"error",1000);
+                        }
+                    }else{
+                        this.showSnackbar(error,"error",1000)
+                    }
+                }else{
+                    this.showSnackbar(error,"error",1000);
+                }
+            });
+
+            this.loaderCard=false;
+            this.showReturnDialog=false;
+        },
+        async redirectTask(task){
+            if(this.$refs.newUserRedirect.validate()){
+                this.loaderCard="deep-orange";
+
+                await this.$axios.put(
+                    this.$webServicesBaseURL+"Home/Tareas/Edit/Redirect/"+task.idPlantillaPasoDetalle,
+                    {
+                        idPlantillaPasoDetalle:task.idPlantillaPasoDetalle,
+                        idPasoinstancia:task.idPasoinstancia,
+                        instanciaPlantilla:task.instanciaPlantilla,
+                        nombre:task.nombre,
+                        descripcion:task.descripcion,
+                        fechaInicio:task.fechaInicio,
+                        fechaFin:task.fechaFin,
+                        estado:task.estado,
+                        estadoNavigation:task.estadoNavigation,
+                        usuarioAccion:this.newUserRedirect.idUsuario,
+                        usuarioAccionNavigation:this.newUserRedirect,
+                        usuarios:task.usuarios,
+                        datos_Pasos:task.datos_Pasos
+                    },
+                    { withCredentials: true }
+                ).then(response=>{
+                    if(response.status==200){
+                        if(response.data.code==43){
+                            console.log(response.data);
+                            task.estado=response.data.data.estado;
+                            task.estadoNavigation=response.data.data.estadoNavigation;
+                            task.usuarioAccion=response.data.data.usuarioAccion;
+                            task.usuarioAccionNavigation=response.data.data.usuarioAccionNavigation;
+                            this.$refs.newUserRedirect.reset();
+
+                            this.showSnackbar(task.nombre,"success",5);
+                        }
+                    }
+                }).catch(error=>{
+                    if(error.response!=null){
+                        if(error.response.status==404){
+                            if(error.response.data!=null){
+                                this.showSnackbar(error.response.data.message,"error",1000);
+                            }else{
+                                this.showSnackbar(error,"error",1000);
+                            }
+                        }else{
+                            this.showSnackbar(error,"error",1000)
+                        }
+                    }else{
+                        this.showSnackbar(error,"error",1000);
+                    }
+                });
+                
+                this.loaderCard=false;
+                this.showRedirectDialog=false;
+            }
+        },
+        overlayStartCondition(task){
+            return task.usuarioAccion==null;
+            /*if(task.usuarioAccion!=null){
+                if(task.estadoNavigation==null){
+                    return true;
+                }else{
+                    console.log(task.estadoNavigation.nombre=="Regresado"|
+                    task.estadoNavigation.nombre=="Regresar");
+                    return task.estadoNavigation.nombre=="Regresado"|
+                    task.estadoNavigation.nombre=="Regresar";
+                }
+            }*/
+        },
         overlayApproveCondition(task){
             if(task.estadoNavigation!=null){
                 return task.estadoNavigation.nombre=="Aprobar"|task.estadoNavigation.nombre=="Aprobado";
@@ -288,26 +520,39 @@ export default {
                 return false;
             }
         },
+        overlayRejectCondition(task){
+            if(task.estadoNavigation!=null){
+                return task.estadoNavigation.nombre=="Rechazar"|task.estadoNavigation.nombre=="Rechazado";
+            }else{
+                return false;
+            }
+        },
         showSnackbar(text,style,indexAction){
-            this.processSnackbar.active=false;
+            this.taskSnackbar.active=false;
             
             switch(indexAction){
                 case 1:{
-                    this.processSnackbar.text="Proceso \""+text+"\" iniciado.";
+                    this.taskSnackbar.text="Tarea \""+text+"\" iniciado.";
                 }break;
                 case 2:{
-                    this.processSnackbar.text="Proceso \""+text+"\" eliminado.";
+                    this.taskSnackbar.text="Tarea \""+text+"\" aprobada.";
                 }break;
-                /*case 3:{
-                    this.templatesSnackbar.text="Proceso \""+text+"\" actualizada.";
-                }break;*/
+                case 3:{
+                    this.taskSnackbar.text="Tarea \""+text+"\" rechazada.";
+                }break;
+                case 4:{
+                    this.taskSnackbar.text="Tarea \""+text+"\" regresada.";
+                }break;
+                case 5:{
+                    this.taskSnackbar.text="Tarea \""+text+"\" redireccionada.";
+                }break;
                 default:{
-                    this.processSnackbar.text=text;
+                    this.taskSnackbar.text=text;
                 }break;
             }
 
-            this.processSnackbar.active=true;
-            this.processSnackbar.style=style;
+            this.taskSnackbar.active=true;
+            this.taskSnackbar.style=style;
         },
         async initializeAll(){
             await this.loadTasks();

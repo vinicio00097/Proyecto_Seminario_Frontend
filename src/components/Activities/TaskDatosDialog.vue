@@ -34,17 +34,34 @@
                             autocomplete="off"
                             required
                         ></v-text-field>
-                        <v-text-field
-                            :readonly="dato.soloLectura=='1'"
+                        <v-dialog
+                            :disabled="dato.soloLectura=='1'"
                             v-if="dato.tipoDato==3"
-                            outlined
-                            color="deep-orange"
-                            :counter="50"
-                            :label="dato.nombreCampo"
-                            v-model="dato.datoDate"
-                            autocomplete="off"
-                            required
-                        ></v-text-field>
+                            ref="inputDateDialog"
+                            v-model="inputDateDialog"
+                            :return-value.sync="dato.datoDate"
+                            persistent
+                            full-width
+                            width="290px"
+                        >
+                            <template v-slot:activator="{ on }">
+                            <v-text-field
+                                v-if="dato.tipoDato==3"
+                                solo
+                                v-model="dato.datoDate!=null?dato.datoDate=dato.datoDate.split('T')[0]:dato.datoDate" color="dark"
+                                :label="dato.nombreCampo"
+                                readonly
+                                v-on="on"
+                            ></v-text-field>
+                            </template>
+                            <v-date-picker v-model="dato.datoDate" color="orange"> 
+                            <div class="flex-grow-1"></div>
+                            <v-btn text @click="inputDateDialog = false">Cancel</v-btn>
+                            <v-btn text @click="()=>{
+                                    $refs.inputDateDialog[0].save(dato.datoDate)
+                                }">OK</v-btn>
+                            </v-date-picker>
+                        </v-dialog>
                     </v-list-item>
                 </v-list>
             </v-card-text>
@@ -63,6 +80,9 @@ export default {
      value: Boolean,
      task: []
   },
+  data:()=>({
+      inputDateDialog:false,
+  }),
   computed: {
     show: {
       get () {

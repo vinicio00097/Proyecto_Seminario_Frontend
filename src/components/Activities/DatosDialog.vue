@@ -40,7 +40,7 @@
                             color="deep-orange"
                             :counter="50"
                             :label="dato.nombreCampo"
-                            v-model="dato.datoDate"
+                            v-model="dato.datoDate!=null?dato.datoDate.split('T')[0]:dato.datoDate"
                             autocomplete="off"
                             required
                         ></v-text-field>

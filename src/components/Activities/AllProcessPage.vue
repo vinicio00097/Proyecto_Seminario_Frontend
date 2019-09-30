@@ -158,8 +158,16 @@ export default {
             this.$router.push({ name:'Proceso', params: { idInstanciaPlantilla: process.idInstanciaPlantilla } });
         },
         getPorcentageComplete(template){
-            var pasosCompletos=template.pasos.filter(item=>item.estado==1).length;
-            template.porcentageValue=pasosCompletos==0?0:100/pasosCompletos;
+            var pasosCompletos=template.pasos.filter((item)=>{
+                if(item.estadoNavigation!=null){
+                    if(item.estadoNavigation.nombre=="Aprobar"|item.estadoNavigation.nombre=="Aprobado"){
+                        return item;
+                    }
+                }
+            }).length;
+
+            template.porcentageValue=pasosCompletos==0?0:(100/template.pasos.length)*pasosCompletos;
+            template.porcentageValue=template.porcentageValue.toFixed(1);
             
             return template.porcentageValue;
         },

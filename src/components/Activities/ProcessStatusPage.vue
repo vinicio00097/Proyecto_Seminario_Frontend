@@ -111,7 +111,7 @@
                     <v-icon v-if="step.estado==null&&step.usuarioAccion!=null">brightness_1</v-icon>
                     <v-icon v-if="step.estado==1&&step.usuarioAccion!=null">check</v-icon>
                     <v-icon v-if="step.estado==21&&step.usuarioAccion!=null">warning</v-icon>
-                    <v-icon v-if="step.estado==22&&step.usuarioAccion!=null">keyboard_return</v-icon>
+                    <v-icon v-if="step.estado==22&&step.usuarioAccion==null">keyboard_return</v-icon>
                     <v-icon v-if="step.estado==23&&step.usuarioAccion!=null">swap_horiz</v-icon>
                 </template>
                 <v-card>

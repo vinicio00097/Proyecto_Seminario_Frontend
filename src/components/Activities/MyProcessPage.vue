@@ -196,14 +196,14 @@
                                 <v-progress-circular
                                 :size="100"
                                 :width="10"
-                                :value="getPorcentageComplete(template.pasos)"
+                                :value="getPorcentageComplete(template)"
                                 color="white"
                                 >
-                                0%
+                                {{template.porcentageValue}}%
                                 </v-progress-circular>
                             </div>
                             <v-card-text class="pa-0 ma-0">
-                                0/{{template.pasos.length}}
+                                {{template.pasos.filter(item=>item.estado==1).length}}/{{template.pasos.length}}
                             </v-card-text>
                         </div>
                     </v-row>
@@ -373,13 +373,21 @@ export default {
             this.templatesInstancesSnackbar.style=style;
         },
         goDetails(process){
-            console.log(process);
             this.$router.push({ name:'Proceso', params: { idInstanciaPlantilla: process.idInstanciaPlantilla } });
         },
-        getPorcentageComplete(pasos){
-            var pasosCompletos=pasos.filter(item=>item.estado==1).length;
+        getPorcentageComplete(template){
+            var pasosCompletos=template.pasos.filter((item)=>{
+                if(item.estadoNavigation!=null){
+                    if(item.estadoNavigation.nombre=="Aprobar"|item.estadoNavigation.nombre=="Aprobado"){
+                        return item;
+                    }
+                }
+            }).length;
+
+            template.porcentageValue=pasosCompletos==0?0:(100/template.pasos.length)*pasosCompletos;
+            template.porcentageValue=template.porcentageValue.toFixed(1);
             
-            return pasosCompletos==0?0:100/pasosCompletos;
+            return template.porcentageValue;
         },
         closeInputDateDialog(date){
             this.$refs.inputDateDialog[0].save(date)
