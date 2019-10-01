@@ -77,6 +77,7 @@
           :to="item.link"
           active-class="deep-orange white--text"
           @click="isActive=!isActive"
+          v-if="userInfo.userLevel<=item.levelRoute"
         >
           <v-list-item-icon>
             <v-icon>{{ item.icon }}</v-icon>
@@ -183,10 +184,10 @@ export default {
       userLevel: String
     },
     routes: [
-      { title: 'Inicio', icon: 'home',link:'/Inicio' },
-      { title: 'Usuarios', icon: 'people' ,link:'/Usuarios'},
-      { title: 'Plantillas', icon: 'grid_on' ,link:'/Plantillas'},
-      { title: 'Actividades', icon: 'dashboard' ,link:'/Actividades'},
+      { title: 'Inicio', icon: 'home',link:'/Inicio',levelRoute:2 },
+      { title: 'Usuarios', icon: 'people' ,link:'/Usuarios',levelRoute:1},
+      { title: 'Plantillas', icon: 'grid_on' ,link:'/Plantillas',levelRoute:1},
+      { title: 'Actividades', icon: 'dashboard' ,link:'/Actividades',levelRoute:2},
     ],
     /*multiLevelRoutes:[
       { title: 'Actividades', icon: 'dashboard',childs:[
@@ -231,13 +232,10 @@ export default {
     },
   },
   mounted() {
-    var oauth_session_claims=JSON.parse(atob(this.$cookies.get("oauth_session_token").split('.')[1]));
-    var session_claims=JSON.parse(atob(this.$cookies.get("session_token").split('.')[1]));
-
-    this.userInfo.userProfileImg=oauth_session_claims.picture;
-    this.userInfo.userName=session_claims.user_name;
-    this.userInfo.userEmail=oauth_session_claims.email;
-    this.userInfo.userLevel=session_claims.user_level;
+    this.userInfo.userProfileImg=this.$session_oauthToken.picture;
+    this.userInfo.userName=this.$session_token.user_name;
+    this.userInfo.userEmail=this.$session_oauthToken.email;
+    this.userInfo.userLevel=this.$session_token.user_level;
 
     window.onresize = () => {
       this.globalWidth=window.innerWidth;

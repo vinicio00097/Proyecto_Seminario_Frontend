@@ -710,6 +710,7 @@ export default {
             this.$refs.newStepForm.reset();
             this.newStepDialog=false;
             this.canSave=true;
+            console.log(this.templateData);
         }
     },
     deleteStep(step){

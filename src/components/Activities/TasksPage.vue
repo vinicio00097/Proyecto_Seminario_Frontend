@@ -81,7 +81,7 @@
                             color="white"
                             item-color="orange"
                             :items="selectedTask.usuarios!=null?
-                            selectedTask.usuarios.filter(item=>item.idUsuario!=session_claims.user_id):[]"
+                            selectedTask.usuarios.filter(item=>item.idUsuario!=$session_token.user_id):[]"
                             label="Seleccione participante"
                             item-text="nombres"
                             item-value="idUsuario"
@@ -184,7 +184,7 @@
                             <v-list-item-subtitle>{{task.datos_Pasos.length}}</v-list-item-subtitle>
                         </v-list-item-content>
                     </v-list-item>
-                    <v-card-actions v-if="task.usuarioAccion==session_claims.user_id">
+                    <v-card-actions v-if="task.usuarioAccion==$session_token.user_id">
                         <v-layout row class="ma-0">
                             <v-tooltip bottom>
                                 <template v-slot:activator="{ on }">
@@ -264,7 +264,6 @@ export default {
     data:()=>({
         showParticipantsDialog:false,
         showTaskDatosDialog:false,
-        session_claims:Object,
         selectedTask:Object,
         showTakeitDialog:false,
         showApproveDialog:false,
@@ -550,7 +549,6 @@ export default {
                     this.taskSnackbar.text=text;
                 }break;
             }
-
             this.taskSnackbar.active=true;
             this.taskSnackbar.style=style;
         },
@@ -563,7 +561,7 @@ export default {
         this.initializeAll();
     },
     mounted(){
-        this.session_claims=JSON.parse(atob(this.$cookies.get("session_token").split('.')[1]));
+        
     }
 }
 </script>

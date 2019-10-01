@@ -44,7 +44,7 @@
         >
           <v-tabs-slider></v-tabs-slider>
 
-          <v-tab v-for="tab in sections" :key="tab.id" :href="tab.href">
+          <v-tab v-for="(tab,index) in sections.filter(item=>$session_token.user_level<=item.levelComponent)" :key="index" :href="tab.href">
             {{tab.title}}
           </v-tab>
         </v-tabs>
@@ -71,15 +71,18 @@ export default {
     data:()=>({
       tab1:"myProcess",
       sections:[
-        {id:1,title:"Mis procesos",href:"#myProcess"},
-        {id:2,title:"Procesos",href:"#process"},
-        {id:3,title:"Mis tareas",href:"#myTasks"}
+        {id:1,title:"Mis procesos",href:"#myProcess",value:"myProcess",levelComponent:1},
+        {id:2,title:"Procesos",href:"#process",value:"process",levelComponent:1},
+        {id:3,title:"Mis tareas",href:"#myTasks",value:"myTasks",levelComponent:2},
       ],
     }),
     components:{
       MyProcessPage,
       AllProcessPage,
       TasksPage
+    },
+    mounted(){
+      this.tab1=this.sections.filter(item=>this.$session_token.user_level<=item.levelComponent)[0].value;
     }
 }
 </script>

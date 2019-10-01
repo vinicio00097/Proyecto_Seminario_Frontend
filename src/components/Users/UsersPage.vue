@@ -167,7 +167,7 @@
             <v-col
                 v-for="user in usersData"
                 :key="user.idUsuario" xs="12"
-                v-if="user.idUsuario!=session_claims.user_id"
+                v-if="user.idUsuario!=$session_token.user_id"
                 sm="6" md="4" lg="3" xl="2" cols="12">
                 <v-card        
                 max-width="400"
@@ -248,7 +248,6 @@
 <script>
 export default {
     data:()=>({
-        session_claims:Object,
         usersData:[],
         ranges:[
             {id:"1",nombre:"Administrativo"},
@@ -474,7 +473,7 @@ export default {
         this.initializeAll();
     },
     mounted(){
-        this.session_claims=JSON.parse(atob(this.$cookies.get("session_token").split('.')[1]));
-    }
+
+    },
 }
 </script>
