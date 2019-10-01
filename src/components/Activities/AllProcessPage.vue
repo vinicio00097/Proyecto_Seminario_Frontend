@@ -92,6 +92,26 @@
             </v-col>
         </v-row>
         <router-view />
+        <v-fab-transition >
+            <v-btn
+            color="white"
+            dark
+            fixed
+            large
+            bottom
+            right
+            fab
+            v-show="isLoaded"
+            @click="onRefresh()"
+            >
+                <v-icon v-if="!isRefreshing" color="black">refresh</v-icon>
+                <v-progress-circular
+                v-if="isRefreshing"
+                color="black"
+                indeterminate
+                ></v-progress-circular>
+            </v-btn>
+        </v-fab-transition>
         <v-snackbar
         :color="templatesInstancesSnackbar.style"
         v-model="templatesInstancesSnackbar.active"
@@ -112,6 +132,7 @@ export default {
     data:()=>({
         templatesInstancesData:[],
         isLoaded:false,
+        isRefreshing:false,
         templatesInstancesSnackbar:{
             text:String,
             active:false,
@@ -131,6 +152,11 @@ export default {
                     }
                 }
             });
+        },
+        async onRefresh(){
+            this.isRefreshing=true;
+            await this.loadTemplatesIntances();
+            this.isRefreshing=false;
         },
         showSnackbar(text,style,indexAction){
             this.templatesInstancesSnackbar.active=false;

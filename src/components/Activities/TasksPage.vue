@@ -242,6 +242,26 @@
                 </v-card>
             </v-col>
         </v-row>
+        <v-fab-transition >
+            <v-btn
+            color="white"
+            dark
+            fixed
+            large
+            bottom
+            right
+            fab
+            v-show="isLoaded"
+            @click="onRefresh()"
+            >
+                <v-icon v-if="!isRefreshing" color="black">refresh</v-icon>
+                <v-progress-circular
+                v-if="isRefreshing"
+                color="black"
+                indeterminate
+                ></v-progress-circular>
+            </v-btn>
+        </v-fab-transition>
         <v-snackbar
         :color="taskSnackbar.style"
         v-model="taskSnackbar.active"
@@ -274,6 +294,7 @@ export default {
         confirmOverlay:true,
         tasksData:[],
         isLoaded:false,
+        isRefreshing:false,
         loaderCard:null,
         taskSnackbar:{
             text:String,
@@ -298,6 +319,11 @@ export default {
                     }
                 }
             });
+        },
+        async onRefresh(){
+            this.isRefreshing=true;
+            await this.loadTasks();
+            this.isRefreshing=false;
         },
         async startTask(task){
             this.loaderCard="deep-orange";
