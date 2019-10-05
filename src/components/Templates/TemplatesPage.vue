@@ -517,7 +517,7 @@
                                             v-on="on"
                                         ></v-text-field>
                                         </template>
-                                        <v-date-picker v-model="campo.datoDate" color="dark"> 
+                                        <v-date-picker v-model="campo.datoDate" color="orange"> 
                                         <div class="flex-grow-1"></div>
                                         <v-btn text @click="inputDateDialog = false">Cancel</v-btn>
                                         <v-btn text @click="()=>{
