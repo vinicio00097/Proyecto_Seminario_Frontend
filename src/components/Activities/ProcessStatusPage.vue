@@ -74,7 +74,7 @@
                         </v-list-item-icon>
                         <v-list-item-content>
                             <v-list-item-title>Pasos aprobados</v-list-item-title>
-                            <v-list-item-subtitle>{{processData.pasos.filter(item=>item.estado==1).length}}/{{processData.pasos.length}}</v-list-item-subtitle>
+                            <v-list-item-subtitle>{{processData.pasos.filter(item=>showApprovedStepCondition(item)).length}}/{{processData.pasos.length}}</v-list-item-subtitle>
                         </v-list-item-content>
                     </v-list-item>
                     <v-row class="pa-0 ma-0" justify="end">
@@ -107,12 +107,12 @@
                 :left="index%2==1"
                 >
                 <template v-slot:icon>
-                    <v-icon v-if="step.estado==null&&step.usuarioAccion==null">info</v-icon>
-                    <v-icon v-if="step.estado==null&&step.usuarioAccion!=null">brightness_1</v-icon>
-                    <v-icon v-if="step.estado==1&&step.usuarioAccion!=null">check</v-icon>
-                    <v-icon v-if="step.estado==21&&step.usuarioAccion!=null">warning</v-icon>
-                    <v-icon v-if="step.estado==22&&step.usuarioAccion==null">keyboard_return</v-icon>
-                    <v-icon v-if="step.estado==23&&step.usuarioAccion!=null">swap_horiz</v-icon>
+                    <v-icon v-if="step.estadoNavigation==null&&step.usuarioAccion==null">info</v-icon>
+                    <v-icon v-if="step.estadoNavigation==null&&step.usuarioAccion!=null">brightness_1</v-icon>
+                    <v-icon v-if="showApprovedStepCondition(step)&&step.usuarioAccion!=null">check</v-icon>
+                    <v-icon v-if="showRejectedStepCondition(step)&&step.usuarioAccion!=null">warning</v-icon>
+                    <v-icon v-if="showReturnedStepCondition(step)&&step.usuarioAccion==null">keyboard_return</v-icon>
+                    <v-icon v-if="showRedirectedStepCondition(step)&&step.usuarioAccion!=null">swap_horiz</v-icon>
                 </template>
                 <v-card>
                     <v-card-title :class="step.color">
@@ -282,6 +282,38 @@ export default {
 
             this.processSnackbar.active=true;
             this.processSnackbar.style=style;
+        },
+        showApprovedStepCondition(step){
+            if(step.estadoNavigation!=null){
+                if(step.estadoNavigation.nombre=="Aprobar"|step.estadoNavigation.nombre=="Aprobado"){
+                    return true;
+                }
+            }
+            return false;
+        },
+        showRejectedStepCondition(step){
+            if(step.estadoNavigation!=null){
+                if(step.estadoNavigation.nombre=="Rechazar"|step.estadoNavigation.nombre=="Rechazado"){
+                    return true;
+                }
+            }
+            return false;
+        },
+        showReturnedStepCondition(step){
+            if(step.estadoNavigation!=null){
+                if(step.estadoNavigation.nombre=="Regresar"|step.estadoNavigation.nombre=="Regresado"){
+                    return true;
+                }
+            }
+            return false;
+        },
+        showRedirectedStepCondition(step){
+            if(step.estadoNavigation!=null){
+                if(step.estadoNavigation.nombre=="Redireccionar"|step.estadoNavigation.nombre=="Redireccionado"){
+                    return true;
+                }
+            }
+            return false;
         },
         getDatetimeParsed(date){
             var readableDatetime=new Date(date);

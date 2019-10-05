@@ -669,11 +669,7 @@ export default {
         readOnlyDetails:false,
         templatesData:[],
         usersData:[],
-        fieldTypeData:[
-            {idTipoDato:1,nombre:"Texto"},
-            {idTipoDato:2,nombre:"Numérico"},
-            {idTipoDato:3,nombre:"Fecha"}
-        ],
+        fieldTypeData:[],
         templatesSnackbar:{
             style:String,
             active:false,
@@ -737,6 +733,30 @@ export default {
         TemplateDetailPage
     },
     methods:{
+        async loadTemplates(){
+            await this.$axios.get(
+                this.$webServicesBaseURL+"Home/Plantillas",
+                { withCredentials: true }
+            ).then(response=>{
+                    if(response.status==200){
+                        if(response.data.code==11){
+                            this.templatesData=response.data.data;
+                        }
+                    }
+            });
+        },
+        async loadDataTypes(){
+            await this.$axios.get(
+                this.$webServicesBaseURL+"DataTypes",
+                { withCredentials: true }
+            ).then(response=>{
+                    if(response.status==200){
+                        if(response.data.code==51){
+                            this.fieldTypeData=response.data.data;
+                        }
+                    }
+            });
+        },
         async crear_proceso(plantilla){
             this.loaderCard="deep-orange"
 
@@ -809,8 +829,6 @@ export default {
         async doCreateStartProcess(template){
             var procesoRetornado=await this.crear_proceso(template);
 
-            console.log(procesoRetornado);
-
             for(var iteradorDatos=0;iteradorDatos<procesoRetornado.datos.length;iteradorDatos++){
                 procesoRetornado.datos[iteradorDatos].datoDate=template.campos[iteradorDatos].datoDate;
                 procesoRetornado.datos[iteradorDatos].datoInteger=template.campos[iteradorDatos].datoInteger;
@@ -818,18 +836,6 @@ export default {
             }
 
             await this.startProcess(procesoRetornado);
-        },
-        async loadTemplates(){
-            await this.$axios.get(
-                this.$webServicesBaseURL+"Home/Plantillas",
-                { withCredentials: true }
-            ).then(response=>{
-                    if(response.status==200){
-                        if(response.data.code==11){
-                            this.templatesData=response.data.data;
-                        }
-                    }
-            });
         },
         createProcessDialog(template){
             this.dialog=true;
@@ -856,7 +862,7 @@ export default {
                 var campo={
                     idorder:new Date().getTime(),
                     nombreCampo:this.newField.nombreCampo,
-                    soloLectura:false,
+                    soloLectura:"0",
                     tipoDato:this.newField.tipoDatoNavigation.idTipoDato,
                     tipoDatoNavigation:this.newField.tipoDatoNavigation
                 };
@@ -882,7 +888,16 @@ export default {
             this.newFieldDialog=true;
         },
         deleteField(field){
-            this.newTemplate.Campos.splice(this.newTemplate.Campos.indexOf(field),1);
+            let deletedField=this.newTemplate.Campos.splice(this.newTemplate.Campos.indexOf(field),1);
+
+            this.newTemplate.Pasos.forEach(element=>{
+                element.datos_pasos.forEach(dato_paso=>{
+                    if(dato_paso.idorder==deletedField[0].idorder){
+                        element.datos_pasos.splice(element.datos_pasos.indexOf(dato_paso),1);
+                    }
+                });
+            });
+            
             this.newFieldDialog=false;
         },
         updateField(){
@@ -904,7 +919,7 @@ export default {
                 };
 
                 this.newStep.read_only_datos.forEach(element => {
-                    element.soloLectura=true;
+                    element.soloLectura="1";
                 });
 
                 this.newTemplate.Pasos.push(step);
@@ -925,7 +940,7 @@ export default {
 
                 this.newStep.read_only_datos=[];
                 this.newStep.datos_pasos.forEach(element=>{
-                    if(element.soloLectura){
+                    if(element.soloLectura||element.soloLectura=="1"){
                         this.newStep.read_only_datos.push(element);
                     }
                 });
@@ -948,11 +963,11 @@ export default {
                 this.selectedStep.read_only_datos=this.newStep.read_only_datos;
 
                 this.selectedStep.datos_pasos.forEach(element=>{
-                    element.soloLectura=false;
+                    element.soloLectura="0";
                 });
 
                 this.selectedStep.read_only_datos.forEach(element => {
-                    element.soloLectura=true;
+                    element.soloLectura="1";
                 });
 
                 this.$refs.newStepForm.reset();
@@ -1096,6 +1111,7 @@ export default {
         async initializeAll(){
             await this.loadTemplates();
             await this.loadUsers();
+            await this.loadDataTypes();
             this.isLoaded=true;
         },
     },

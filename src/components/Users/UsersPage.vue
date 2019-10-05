@@ -99,9 +99,9 @@
                             outlined
                             color="deep-orange"
                             v-model="userForm.selectedRange"
-                            :items="ranges"
+                            :items="rangesData"
                             item-text="nombre"
-                            item-value="id"
+                            item-value="idRango"
                             :rules="userForm.selectedRangeRules"
                             label="Rangos"
                             autocomplete="off"
@@ -249,10 +249,7 @@
 export default {
     data:()=>({
         usersData:[],
-        ranges:[
-            {id:"1",nombre:"Administrativo"},
-            {id:"2",nombre:"Estándar"}
-        ],
+        rangesData:[],
         selectedUser:Object,
         isLoaded:false,
         dialog:false,
@@ -293,6 +290,18 @@ export default {
                 if(response.status==200){
                     if(response.data.code==31){
                         this.usersData=response.data.data;
+                    }
+                }
+            });
+        },
+        async loadRanges(){
+            await this.$axios.get(
+                this.$webServicesBaseURL+"Ranges",
+                {withCredentials:true}
+            ).then(response=>{
+                if(response.status==200){
+                    if(response.data.code==61){
+                        this.rangesData=response.data.data;
                     }
                 }
             });
@@ -339,7 +348,7 @@ export default {
                     nombres:this.userForm.names,
                     apellidos:this.userForm.lastNames,
                     usuarioEmail:this.userForm.email,
-                    rango:this.userForm.selectedRange.id
+                    rango:this.userForm.selectedRange.idRango
                 };
 
                 this.loaderCard="deep-orange";
@@ -387,7 +396,7 @@ export default {
                     nombres:this.userForm.names,
                     apellidos:this.userForm.lastNames,
                     usuarioEmail:this.userForm.email,
-                    rango:this.userForm.selectedRange.id
+                    rango:this.userForm.selectedRange.idRango
                 };
 
                 this.loaderCard="deep-orange";
@@ -435,6 +444,7 @@ export default {
         },
         async initializeAll(){
             await this.loadUsers();
+            await this.loadRanges();
             this.isLoaded=true;
         },
         cardActionActivation(accion,targetObject){
@@ -445,7 +455,7 @@ export default {
                 this.userForm.names=this.selectedUser.nombres;
                 this.userForm.lastNames=this.selectedUser.apellidos;
                 this.userForm.email=this.selectedUser.usuarioEmail;
-                this.userForm.selectedRange=this.ranges.find(range=>range.id==this.selectedUser.rango);
+                this.userForm.selectedRange=this.rangesData.find(range=>range.idRango==this.selectedUser.rango);
             }
 
             this.dialog=true;

@@ -439,11 +439,7 @@ import FieldsDialog from '../Activities/FieldsDialog'
 export default {
   props: ['readOnly'],
   data: ()=>({
-    fieldTypeData:[
-      {idTipoDato:1,nombre:"Texto"},
-      {idTipoDato:2,nombre:"Numérico"},
-      {idTipoDato:3,nombre:"Fecha"}
-    ],
+    fieldTypeData:[],
     showParticipantsDialog:false,
     showFieldsDialog:false,
     usersData:[],
@@ -563,6 +559,18 @@ export default {
                   this.usersData=response.data.data;
               }
           }
+      });
+    },
+    async loadDataTypes(){
+      await this.$axios.get(
+          this.$webServicesBaseURL+"DataTypes",
+          { withCredentials: true }
+      ).then(response=>{
+        if(response.status==200){
+            if(response.data.code==51){
+                this.fieldTypeData=response.data.data;
+            }
+        }
       });
     },
     openEditInfoDialog(){
@@ -775,6 +783,7 @@ export default {
     async initializeAll(){
       await this.loadUsers();
       await this.loadTemplate();
+      await this.loadDataTypes();
       this.isLoaded=true;
     },
   },
