@@ -87,7 +87,7 @@
                                             v-on="on"
                                         ></v-text-field>
                                         </template>
-                                        <v-date-picker v-model="campo.datoDate" scrollable>
+                                        <v-date-picker v-model="campo.datoDate" scrollable color="orange">
                                         <div class="flex-grow-1"></div>
                                         <v-btn text @click="inputDateDialog = false">Cancel</v-btn>
                                         <v-btn text @click="closeInputDateDialog(campo.datoDate)">OK</v-btn>
@@ -168,6 +168,11 @@
                         <div class="subtitle-1 text--primary">Descripción</div>
                         {{template.descripcion}}
                     </v-card-text>
+                    <v-row class="ma-0 pl-4 pr-4" justify="center" v-if="template.fechaCreado!=null">
+                        <div class="body-2 text--secondary">
+                            {{getDatetimeParsed(template.fechaCreado)}} creado
+                        </div>
+                    </v-row>
                     <v-list-item>
                         <v-list-item-icon>
                         <v-btn icon>
@@ -227,9 +232,14 @@
                                 size="20"
                             ></v-progress-circular>
                             <v-divider vertical class="mx-1 transparent"></v-divider>
-                        <v-btn icon @click="goDetails(template)">
-                            <v-icon>visibility</v-icon>
-                        </v-btn>
+                            <v-btn icon @click="goDetails(template)">
+                                <v-icon>visibility</v-icon>
+                            </v-btn>
+                            <v-row class="ma-0 pl-4 pr-4" v-if="template.fechaIniciado!=null">
+                                <div class="body-2 text--secondary">
+                                    {{getDatetimeParsed(template.fechaIniciado)}} iniciado
+                                </div>
+                            </v-row>
                         </v-layout>
                     </v-card-actions>
                 </v-card>
@@ -351,9 +361,9 @@ export default {
                 ).then(response=>{
                     if(response.status==200){
                         if(response.data.code==23){
-                            templateToStart.iniciada=response.data.data.iniciada;
-                            templateToStart.datos=response.data.data.datos;
-                            templateToStart.pasos=response.data.data.pasos;
+                            var toReplaceIndex=this.templatesInstancesData.indexOf(templateToStart);
+                            this.templatesInstancesData.splice(toReplaceIndex, 1, response.data.data); 
+                            templateToStart=response.data.data;
 
                             this.showSnackbar(templateToStart.nombre,"success",1);
                         }
@@ -400,6 +410,13 @@ export default {
         },
         goDetails(process){
             this.$router.push({ name:'Proceso', params: { idInstanciaPlantilla: process.idInstanciaPlantilla } });
+        },
+        getDatetimeParsed(date){
+            var readableDatetime=new Date(date);
+            
+            return readableDatetime.getDate()+" "+
+            readableDatetime.toLocaleString('default', { month: 'long' }).substring(0,3)+" "+
+            readableDatetime.getUTCFullYear()+" "+date.split("T")[1];
         },
         getPorcentageComplete(template){
             var pasosCompletos=template.pasos.filter((item)=>{

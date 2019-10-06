@@ -184,6 +184,9 @@
                             <v-list-item-subtitle>{{task.datos_Pasos.length}}</v-list-item-subtitle>
                         </v-list-item-content>
                     </v-list-item>
+                    <v-row class="ma-0 pl-4 pr-4" justify="center">
+                        <div class="body-2 text--secondary">{{getDatetimeParsed(task.fechaCreado)}} creado</div>
+                    </v-row>
                     <v-card-actions v-if="task.usuarioAccion==$session_token.user_id">
                         <v-layout row class="ma-0">
                             <v-tooltip bottom>
@@ -551,6 +554,13 @@ export default {
             }else{
                 return false;
             }
+        },
+        getDatetimeParsed(date){
+            var readableDatetime=new Date(date);
+            
+            return readableDatetime.getDate()+" "+
+            readableDatetime.toLocaleString('default', { month: 'long' }).substring(0,3)+" "+
+            readableDatetime.getUTCFullYear()+" "+date.split("T")[1];
         },
         showSnackbar(text,style,indexAction){
             this.taskSnackbar.active=false;

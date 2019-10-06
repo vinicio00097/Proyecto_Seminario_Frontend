@@ -244,7 +244,8 @@
                                         chips
                                         deletable-chips
                                         return-object
-                                    ></v-select>
+                                    >
+                                    </v-select>
                                     <v-select
                                         item-color="deep-orange lighten-2"
                                         solo
@@ -767,7 +768,7 @@ export default {
             ).then(response=>{
                 if(response.status==200){
                     if(response.data.code==22){
-                        this.showSnackbar(plantilla.nombre,"success",1000);
+                        this.showSnackbar(plantilla.nombre,"success",4);
                         return response.data.data;
                     }
                 }
@@ -803,7 +804,7 @@ export default {
                 ).then(response=>{
                     if(response.status==200){
                         if(response.data.code==23){
-                            this.showSnackbar(templateToStart.nombre,"success",4);
+                            this.showSnackbar(templateToStart.nombre,"success",5);
                         }
                     }
                 }).catch(error=>{
@@ -1086,6 +1087,9 @@ export default {
                     this.templatesSnackbar.text="Plantilla \""+text+"\" actualizada.";
                 }break;
                 case 4:{
+                    this.templatesSnackbar.text="Proceso \""+text+"\" creado.";
+                }break;
+                case 5:{
                     this.templatesSnackbar.text="Proceso \""+text+"\" iniciado.";
                 }break;
                 default:{

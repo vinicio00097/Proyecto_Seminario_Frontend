@@ -27,6 +27,11 @@
                         <div class="subtitle-1 text--primary">Descripción</div>
                         {{template.descripcion}}
                     </v-card-text>
+                    <v-row class="ma-0 pl-4 pr-4" justify="center" v-if="template.fechaCreado!=null">
+                        <div class="body-2 text--secondary">
+                            {{getDatetimeParsed(template.fechaCreado)}} creado
+                        </div>
+                    </v-row>
                     <v-list-item>
                         <v-list-item-icon>
                         <v-btn icon>
@@ -83,9 +88,14 @@
                                 size="20"
                             ></v-progress-circular>
                             <v-divider vertical class="mx-1 transparent"></v-divider>
-                        <v-btn icon @click="goDetails(template)">
-                            <v-icon>visibility</v-icon>
-                        </v-btn>
+                            <v-btn icon @click="goDetails(template)">
+                                <v-icon>visibility</v-icon>
+                            </v-btn>
+                            <v-row class="ma-0 pl-4 pr-4" v-if="template.fechaIniciado!=null">
+                                <div class="body-2 text--secondary">
+                                    {{getDatetimeParsed(template.fechaIniciado)}} iniciado
+                                </div>
+                            </v-row>
                         </v-layout>
                     </v-card-actions>
                 </v-card>
@@ -182,6 +192,13 @@ export default {
         goDetails(process){
             console.log(process);
             this.$router.push({ name:'Proceso', params: { idInstanciaPlantilla: process.idInstanciaPlantilla } });
+        },
+        getDatetimeParsed(date){
+            var readableDatetime=new Date(date);
+            
+            return readableDatetime.getDate()+" "+
+            readableDatetime.toLocaleString('default', { month: 'long' }).substring(0,3)+" "+
+            readableDatetime.getUTCFullYear()+" "+date.split("T")[1];
         },
         getPorcentageComplete(template){
             var pasosCompletos=template.pasos.filter((item)=>{
