@@ -99,7 +99,7 @@
                     <v-card-actions>
                         <v-spacer/>
                         <v-btn text @click="showApproveDialog=false;">Cancelar</v-btn>
-                        <v-btn text color="blue darken-1" @click="redirectTask(selectedTask)">Redireccionar</v-btn>
+                        <v-btn text color="teal accent-3" @click="redirectTask(selectedTask)">Redireccionar</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
@@ -120,8 +120,7 @@
                 :value="overlayStartCondition(task)"
                 >
                     <v-btn
-                        outlined
-                        color="white"
+                        color="light-blue darken-2"
                         @click="showTakeitDialog=true;selectedTask=task;"
                     >
                         Iniciar

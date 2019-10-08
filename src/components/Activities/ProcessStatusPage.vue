@@ -101,7 +101,7 @@
                 <v-timeline-item
                 v-for="(step,index) in processData.pasos"
                 :key="step.idPlantillaPasoDetalle"
-                :color="step.color='light-blue darken-2'/*colorsArray[Math.floor(Math.random() * colorsArray.length)]*/"
+                :color="step.color='light-blue darken-2'"
                 fill-dot
                 :right="index%2==0"
                 :left="index%2==1"
