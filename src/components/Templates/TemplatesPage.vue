@@ -423,12 +423,7 @@
                     <v-btn
                         v-if="actionDialog=='createProcess'||actionDialog=='createStartProcess'"
                         text
-                        @click="()=>{
-                            actionDialog=='createProcess'?
-                                crear_proceso(selectedTemplate):
-                                fieldsProcessDialog=true;
-                                dialog=false;
-                        }"
+                        @click="doSelectedOperation(selectedTemplate)"
                     >
                         Si
                     </v-btn>
@@ -847,6 +842,17 @@ export default {
             this.dialog=true;
             this.selectedTemplate=template;
             this.actionDialog='createStartProcess';
+        },
+        doSelectedOperation(selectedTemplate){
+            switch(this.actionDialog){
+                case 'createProcess':{
+                    this.crear_proceso(selectedTemplate);                    
+                }break;
+                case 'createStartProcess':{
+                    this.fieldsProcessDialog=true;
+                    this.dialog=false;
+                }break;
+            }
         },
         updateModifiedTemplate(newTemplate){
             if(newTemplate!=null){
